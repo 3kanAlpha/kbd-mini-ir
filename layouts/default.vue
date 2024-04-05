@@ -7,10 +7,11 @@
         <v-app-bar-nav-icon></v-app-bar-nav-icon>
       </template>
 
-      <v-app-bar-title>IRmania</v-app-bar-title>
+      <v-app-bar-title><NuxtLink to="/" id="site-title">IRmania</NuxtLink></v-app-bar-title>
 
       <template v-slot:append>
         <v-btn icon="mdi-theme-light-dark" @click="toggleTheme"></v-btn>
+        <v-btn icon="mdi-account-circle" to="login"></v-btn>
       </template>
     </v-app-bar>
 
@@ -35,5 +36,10 @@ function toggleTheme () {
 <style>
 #page-content {
   max-width: 1400px;
+}
+
+#site-title {
+  text-decoration: none;
+  color: #fff;
 }
 </style>

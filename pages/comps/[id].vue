@@ -27,12 +27,14 @@ const compInfo = ref(null)
 const scoreInfo = ref([])
 const isLoading = ref(true)
 const headers = [
-  { title: 'User Name', value: 'user_name' },
+  { title: 'Player Name', value: 'user_name' },
   { title: 'Score', value: 'score' },
   { title: 'Updated at', value: 'updated_at' },
   { title: 'Result Image URL', value: 'image_url'},
 ]
 const sortBy = [{ key: 'score', order: 'desc' }]
+
+const user = ref(null)
 
 async function getCompInfo() {
   const { data } = await supabase.from('tournaments').select('*').eq('id', route.params.id)
@@ -44,6 +46,11 @@ async function getScoreInfo() {
   scoreInfo.value = data
 }
 
+async function getUser() {
+  const { data: { user } } = await supabase.auth.getUser()
+  user.value = user
+}
+
 function formatTimestamp(timestamp) {
   return new Date(timestamp).toLocaleString()
 }
@@ -51,6 +58,7 @@ function formatTimestamp(timestamp) {
 onMounted(() => {
   getCompInfo()
   getScoreInfo()
+  getUser()
   isLoading.value = false
 })
 </script>

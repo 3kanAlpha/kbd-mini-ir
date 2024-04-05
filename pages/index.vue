@@ -1,6 +1,9 @@
 <template>
   <v-container fluid>
     <div class="text-h3 ma-6">IRmania</div>
+    <div class="ma-4">
+      <p class="text-body-2">スコア登録のやり方:<br />1. <NuxtLink to="/login">ログインページ</NuxtLink>からログインする。<br />2. 各大会のページからスコアを登録する。</p>
+    </div>
     <div>
       <v-data-table :items="comps" :headers="headers" item-key="name" v-model:sort-by="sortBy">
         <template v-slot:item.name="{ item }">

@@ -11,7 +11,7 @@
 
       <template v-slot:append>
         <v-btn icon="mdi-theme-light-dark" @click="toggleTheme"></v-btn>
-        <v-btn icon="mdi-account-circle" to="login"></v-btn>
+        <v-btn icon="mdi-account-circle" to="/login"></v-btn>
       </template>
     </v-app-bar>
 

@@ -21,4 +21,9 @@ export default defineNuxtConfig({
       },
     },
   },
+  runtimeConfig: {
+    public: {
+      anonKey: process.env.ANON_KEY,
+    }
+  }
 })

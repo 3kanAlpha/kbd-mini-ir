@@ -1,5 +1,17 @@
 <template>
   <v-app>
-    <NuxtWelcome />
+    <NuxtLayout>
+      <NuxtPage />
+    </NuxtLayout>
   </v-app>
 </template>
+
+<script lang="ts" setup>
+const appName = 'IRmania（仮称）'
+ 
+useHead({
+  titleTemplate: (titleChunk) => {
+    return titleChunk ? `${titleChunk} - ${appName}` : appName
+  },
+})
+</script>

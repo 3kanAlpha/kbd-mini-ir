@@ -5,7 +5,7 @@
       <div class="text-h6 ma-1">{{ compInfo.song_title }} [{{ compInfo.difficulty }}]</div>
       <div class="text-subtitle-2 ma-1">スコア登録期間: {{ formatTimestamp(compInfo.open_until) }} まで <span v-if="!isCompOpen(compInfo.open_until)">(開催終了)</span></div>
 
-      <div class="text-body-1 ma-4">{{ compInfo.desc }}</div>
+      <div class="text-body-1 ma-4" style="white-space: pre-wrap;">{{ compInfo.desc }}</div>
 
       <div v-if="isLoggedIn && isCompOpen(compInfo.open_until)" class="my-4">
         <v-btn size="large" :to="submissionPageUrl" color="blue" prepend-icon="mdi-pencil-box">スコア提出</v-btn>

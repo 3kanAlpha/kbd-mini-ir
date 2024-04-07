@@ -16,7 +16,6 @@ useHead({
 })
 
 useSeoMeta({
-  title: appName,
   ogTitle: appName,
   description: '色んなゲームでカジュアル大会を開くためのプラットフォーム',
   ogDescription: '色んなゲームでカジュアル大会を開くためのプラットフォーム',

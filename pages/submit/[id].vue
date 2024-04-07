@@ -47,6 +47,11 @@
                 label="Result Image URL"
                 :rules="urlRules"
               ></v-text-field>
+              <v-text-field
+                v-model="comment"
+                label="Comment"
+                :rules="commentRules"
+              ></v-text-field>
 
               <v-btn
                 class="mt-2"
@@ -80,7 +85,8 @@ const scoreUpdated = ref(false)
 const userInfo = ref(null)
 
 const score = ref(null)
-const imageUrl = ref(null)
+const imageUrl = ref("")
+const comment = ref("")
 
 const scoreRules = [
   (value) => {
@@ -112,6 +118,16 @@ const urlRules = [
     } catch (e) {
       return '有効なURLを入力してください。'
     }
+    return true
+  }
+]
+
+const commentRules = [
+  (value) => {
+    if (value.length > 25) {
+      return 'コメントは25文字以内で入力してください。'
+    }
+
     return true
   }
 ]
@@ -156,6 +172,7 @@ async function updateScore() {
     score: parsedScore,
     image_url: imageUrl.value,
     updated_at: updatedAt,
+    comment: comment.value,
   })
 
   if (error == null) {
@@ -169,10 +186,6 @@ function formatTimestamp(timestamp) {
 
 function isCompOpen(timestamp) {
   return new Date(timestamp) > new Date()
-}
-
-function isUrlValid(u) {
-  
 }
 
 onMounted(() => {

@@ -78,6 +78,7 @@ async function updateProfile() {
   
   if (user == null) {
     await navigateTo('/login')
+    return
   }
 
   const userUID = user?.id

@@ -39,6 +39,7 @@ const headers = [
   { title: 'Score', value: 'score' },
   { title: 'Updated at', value: 'updated_at' },
   { title: 'Result Image URL', value: 'image_url'},
+  { title: 'Comment', value: 'comment' },
 ]
 const sortBy = [{ key: 'score', order: 'desc' }]
 
@@ -59,6 +60,7 @@ async function getScoreInfo() {
       score,
       updated_at,
       image_url,
+      comment,
       users (nickname)`)
     .eq('tournament_id', route.params.id)
   scoreInfo.value = data

@@ -12,7 +12,12 @@ export default defineNuxtConfig({
         config.plugins.push(vuetify({ autoImport: true }))
       })
     },
-    //...
+    ['@nuxtjs/robots', {
+      rules: {
+        UserAgent: '*',
+        Disallow: '/',
+      }
+    }],
   ],
   vite: {
     vue: {
@@ -25,5 +30,5 @@ export default defineNuxtConfig({
     public: {
       anonKey: process.env.ANON_KEY,
     }
-  }
+  },
 })

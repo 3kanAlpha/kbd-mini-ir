@@ -1,10 +1,15 @@
 <template>
   <v-container fluid>
     <div v-if="!isLoading" class="text-center">
-      <div class="text-h3 ma-6">{{ compInfo.name }}</div>
-      <div class="text-subtitle-2 ma-2">スコア登録期間: {{ formatTimestamp(compInfo.open_until) }} まで</div>
+      <div class="text-h3 my-4">{{ compInfo.name }}</div>
+      <div class="text-h6 ma-1">{{ compInfo.song_title }} [{{ compInfo.difficulty }}]</div>
+      <div class="text-subtitle-2 ma-1">スコア登録期間: {{ formatTimestamp(compInfo.open_until) }} まで <span v-if="!isCompOpen(compInfo.open_until)">(開催終了)</span></div>
 
       <div class="text-body-1 ma-4">{{ compInfo.desc }}</div>
+
+      <div v-if="isLoggedIn && isCompOpen(compInfo.open_until)" class="my-4">
+        <v-btn size="large" :to="submissionPageUrl" color="blue" prepend-icon="mdi-pencil-box">スコア提出</v-btn>
+      </div>
 
       <div class="text-left">
         <v-data-table :items="scoreInfo" :headers="headers" item-key="user_uid" v-model:sort-by="sortBy">
@@ -37,7 +42,9 @@ const headers = [
 ]
 const sortBy = [{ key: 'score', order: 'desc' }]
 
-const user = ref(null)
+const isLoggedIn = ref(false)
+
+const submissionPageUrl = `/submit/${route.params.id}`
 
 async function getCompInfo() {
   const { data } = await supabase.from('tournaments').select('*').eq('id', route.params.id).limit(1).single()
@@ -57,19 +64,24 @@ async function getScoreInfo() {
   scoreInfo.value = data
 }
 
-async function getUser() {
-  const { data: { user } } = await supabase.auth.getUser()
-  user.value = user
+/** ユーザーが既にログイン済みかどうかを検証する */
+async function setLoggedIn() {
+  const { data, error } = await supabase.auth.getSession()
+  isLoggedIn.value = data.session != null
 }
 
 function formatTimestamp(timestamp) {
   return new Date(timestamp).toLocaleString()
 }
 
+function isCompOpen(timestamp) {
+  return new Date(timestamp) > new Date()
+}
+
 onMounted(() => {
   getCompInfo()
   getScoreInfo()
-  getUser()
+  setLoggedIn()
   isLoading.value = false
 })
 </script>

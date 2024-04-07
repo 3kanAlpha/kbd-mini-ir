@@ -7,7 +7,7 @@
 </template>
 
 <script lang="ts" setup>
-const appName = 'IRmania'
+const appName = 'IRmania（α）'
  
 useHead({
   titleTemplate: (titleChunk) => {

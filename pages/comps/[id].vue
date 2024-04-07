@@ -7,7 +7,10 @@
       <div class="text-body-1 ma-4">{{ compInfo.desc }}</div>
 
       <div class="text-left">
-        <v-data-table :items="scoreInfo" :headers="headers" item-key="user_name" v-model:sort-by="sortBy">
+        <v-data-table :items="scoreInfo" :headers="headers" item-key="user_uid" v-model:sort-by="sortBy">
+          <template v-slot:item.user_uid="{ item }">
+            {{ item.users.nickname }}
+          </template>
           <template v-slot:item.updated_at="{ item }">
             {{ formatTimestamp(item.updated_at) }}
           </template>
@@ -27,7 +30,7 @@ const compInfo = ref(null)
 const scoreInfo = ref([])
 const isLoading = ref(true)
 const headers = [
-  { title: 'Player Name', value: 'user_name' },
+  { title: 'Player Name', value: 'user_uid' },
   { title: 'Score', value: 'score' },
   { title: 'Updated at', value: 'updated_at' },
   { title: 'Result Image URL', value: 'image_url'},
@@ -37,12 +40,20 @@ const sortBy = [{ key: 'score', order: 'desc' }]
 const user = ref(null)
 
 async function getCompInfo() {
-  const { data } = await supabase.from('tournaments').select('*').eq('id', route.params.id)
-  compInfo.value = data[0]
+  const { data } = await supabase.from('tournaments').select('*').eq('id', route.params.id).limit(1).single()
+  compInfo.value = data
 }
 
 async function getScoreInfo() {
-  const { data } = await supabase.from('score').select('user_name,score,updated_at,image_url').eq('tournament_id', route.params.id)
+  const { data } = await supabase
+    .from('score')
+    .select(`
+      user_uid,
+      score,
+      updated_at,
+      image_url,
+      users (nickname)`)
+    .eq('tournament_id', route.params.id)
   scoreInfo.value = data
 }
 

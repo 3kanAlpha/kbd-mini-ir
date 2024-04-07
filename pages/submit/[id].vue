@@ -45,6 +45,7 @@
               <v-text-field
                 v-model="imageUrl"
                 label="Result Image URL"
+                :rules="urlRules"
               ></v-text-field>
 
               <v-btn
@@ -79,7 +80,7 @@ const scoreUpdated = ref(false)
 const userInfo = ref(null)
 
 const score = ref(null)
-const imageUrl = ref("")
+const imageUrl = ref(null)
 
 const scoreRules = [
   (value) => {
@@ -91,6 +92,25 @@ const scoreRules = [
     let num = parseFloat(value)
     if (isNaN(num)) {
       return '有効な数値を入力してください。'
+    }
+    return true
+  }
+]
+
+const urlRules = [
+  (value) => {
+    if (value == null || value.length == 0) {
+      return true
+    }
+
+    // URLの形式か検証する
+    try {
+      let u = new URL(value)
+      if (u.protocol !== 'http:' && u.protocol !== 'https:') {
+        return '有効なURLを入力してください。'
+      }
+    } catch (e) {
+      return '有効なURLを入力してください。'
     }
     return true
   }
@@ -149,6 +169,10 @@ function formatTimestamp(timestamp) {
 
 function isCompOpen(timestamp) {
   return new Date(timestamp) > new Date()
+}
+
+function isUrlValid(u) {
+  
 }
 
 onMounted(() => {

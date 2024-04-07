@@ -180,14 +180,6 @@ async function updateScore() {
   }
 }
 
-function formatTimestamp(timestamp) {
-  return new Date(timestamp).toLocaleString()
-}
-
-function isCompOpen(timestamp) {
-  return new Date(timestamp) > new Date()
-}
-
 onMounted(() => {
   getCompInfo()
   verifyCanSubmit()

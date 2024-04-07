@@ -72,14 +72,6 @@ async function setLoggedIn() {
   isLoggedIn.value = data.session != null
 }
 
-function formatTimestamp(timestamp) {
-  return new Date(timestamp).toLocaleString()
-}
-
-function isCompOpen(timestamp) {
-  return new Date(timestamp) > new Date()
-}
-
 onMounted(() => {
   getCompInfo()
   getScoreInfo()

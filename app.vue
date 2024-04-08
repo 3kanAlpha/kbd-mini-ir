@@ -8,6 +8,7 @@
 
 <script lang="ts" setup>
 const appName = 'IRmania（α）'
+const desc = '色んなゲームでカジュアル大会を開くためのプラットフォーム'
  
 useHead({
   titleTemplate: (titleChunk) => {
@@ -17,7 +18,7 @@ useHead({
 
 useSeoMeta({
   ogTitle: appName,
-  description: '色んなゲームでカジュアル大会を開くためのプラットフォーム',
-  ogDescription: '色んなゲームでカジュアル大会を開くためのプラットフォーム',
+  description: desc,
+  ogDescription: desc,
 })
 </script>

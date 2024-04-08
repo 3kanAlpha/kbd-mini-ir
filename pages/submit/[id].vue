@@ -84,16 +84,13 @@ const scoreUpdated = ref(false)
 
 const userInfo = ref(null)
 
-const score = ref(null)
+const score = ref("")
 const imageUrl = ref("")
 const comment = ref("")
 
 const scoreRules = [
-  (value) => {
-    if (value == null) {
-      return 'スコアを入力してください。'
-    }
-
+  (value: string) => validateNotEmpty(value),
+  (value: string) => {
     // 数値にパースできるか検証する
     let num = parseFloat(value)
     if (isNaN(num)) {
@@ -104,8 +101,8 @@ const scoreRules = [
 ]
 
 const urlRules = [
-  (value) => {
-    if (value == null || value.length == 0) {
+  (value: string) => {
+    if (value.length == 0) {
       return true
     }
 
@@ -123,13 +120,7 @@ const urlRules = [
 ]
 
 const commentRules = [
-  (value) => {
-    if (value.length > 25) {
-      return 'コメントは25文字以内で入力してください。'
-    }
-
-    return true
-  }
+  (value: string) => validateLength(value, 25)
 ]
 
 async function getCompInfo() {

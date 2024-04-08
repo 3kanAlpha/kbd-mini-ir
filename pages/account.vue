@@ -56,12 +56,13 @@ const userName = ref("")
 const updateAlert = ref(false)
 
 const nameRules = [
-  (value: String) => {
-    if (value.length < 1) {
+  (value: string) => {
+    if (value.trim().length < 1) {
       return '名前を空白にすることはできません。'
     }
     return true
-  }
+  },
+  (value: string) => validateLength(value, 20)
 ]
 
 async function signOut() {
@@ -70,7 +71,8 @@ async function signOut() {
 }
 
 async function updateProfile() {
-  if (userName.value.length < 1) {
+  const trimmedName = userName.value.trim()
+  if (trimmedName.length < 1) {
     return
   }
 
@@ -85,7 +87,7 @@ async function updateProfile() {
 
   const { data, error } = await supabase.from('users').upsert({
     user_uid: userUID,
-    nickname: userName.value,
+    nickname: trimmedName,
   })
 
   if (error == null) {

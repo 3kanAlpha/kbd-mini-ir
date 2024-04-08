@@ -1,7 +1,7 @@
 <template>
   <v-container fluid>
     <div class="text-h3 ma-6 caveat-bold">IRmania</div>
-    <div class="ma-4 pl-2">
+    <div class="ma-4 pl-2 mb-6">
       <p class="text-body-2" v-if="!isLoggedIn">
         スコア登録のやり方:<br />
         1. <NuxtLink to="/login">ログインページ</NuxtLink>からログインする。<br />
@@ -14,6 +14,9 @@
         2. <NuxtLink to="/account">アカウント情報ページ</NuxtLink>から名前を登録する。<br />
         3. 各大会のページからスコアを登録する。
       </p>
+    </div>
+    <div v-if="isLoggedIn" class="my-4 text-center">
+      <v-btn to="/comps/new" color="blue" prepend-icon="mdi-calendar-edit">大会を作成する</v-btn>
     </div>
     <div>
       <v-data-table :items="comps" :headers="headers" item-key="name" v-model:sort-by="sortBy">

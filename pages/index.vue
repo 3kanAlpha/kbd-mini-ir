@@ -1,7 +1,7 @@
 <template>
   <v-container fluid>
-    <div class="text-h3 ma-6">IRmania</div>
-    <div class="ma-4">
+    <div class="text-h3 ma-6 caveat-bold">IRmania</div>
+    <div class="ma-4 pl-2">
       <p class="text-body-2" v-if="!isLoggedIn">
         スコア登録のやり方:<br />
         1. <NuxtLink to="/login">ログインページ</NuxtLink>からログインする。<br />
@@ -62,3 +62,14 @@ onMounted(() => {
   setLoggedIn()
 })
 </script>
+
+<style>
+@import url('https://fonts.googleapis.com/css2?family=Caveat:wght@400..700&display=swap');
+
+.caveat-bold {
+  font-family: "Caveat", cursive;
+  font-optical-sizing: auto;
+  font-weight: 700;
+  font-style: normal;
+}
+</style>

@@ -21,7 +21,7 @@
     <div>
       <v-data-table :items="comps" :headers="headers" item-key="name" v-model:sort-by="sortBy">
         <template v-slot:item.name="{ item }">
-          <a :href="'comps/' + item.id">{{ item.name }}</a>
+          <NuxtLink :to="'comps/' + item.id">{{ item.name }}</NuxtLink>
         </template>
         <template v-slot:item.open_until="{ item }">
           <div :class="{'text-grey-lighten-1': !isCompOpen(item.open_until)}">

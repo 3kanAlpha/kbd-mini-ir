@@ -34,6 +34,11 @@
           一番最後に提出されたスコアが有効となります。
         </div>
 
+        <div class="text-body-2 mb-6" v-if="isPrivate">
+          この大会はプライベート大会です。<br />
+          スコアを提出するにはパスワードが必要です。
+        </div>
+
         <div class="my-2">
           <v-sheet>
             <v-form @submit.prevent="updateScore">
@@ -53,6 +58,21 @@
                 :rules="commentRules"
               ></v-text-field>
 
+              <v-row v-show="isPrivate">
+                <v-col cols="4"><v-list-subheader>パスワード</v-list-subheader></v-col>
+                <v-col cols="8">
+                  <v-text-field
+                    v-model="passwd"
+                    label="Password"
+                    :rules="passRules"
+                    :append-icon="showPasswd ? 'mdi-eye' : 'mdi-eye-off'"
+                    :type="showPasswd ? 'text' : 'password'"
+                    @click:append="showPasswd = !showPasswd"
+                    counter
+                  ></v-text-field>
+                </v-col>
+              </v-row>
+
               <v-btn
                 class="mt-2"
                 text="スコアを提出する"
@@ -67,6 +87,38 @@
         </div>
       </div>
     </div>
+    <v-dialog v-model="badRequest" width="auto">
+      <v-card
+        max-width="500"
+        prepend-icon="mdi-alert-circle"
+        text="入力の形式に誤りがあります。修正してください。"
+        title="エラー"
+      >
+        <template v-slot:actions>
+          <v-btn
+            class="ms-auto"
+            text="Ok"
+            @click="badRequest = false"
+          ></v-btn>
+        </template>
+      </v-card>
+    </v-dialog>
+    <v-dialog v-model="wrongPass" width="auto">
+      <v-card
+        max-width="500"
+        prepend-icon="mdi-alert-circle"
+        text="パスワードが一致しません。"
+        title="認証エラー"
+      >
+        <template v-slot:actions>
+          <v-btn
+            class="ms-auto"
+            text="Ok"
+            @click="wrongPass = false"
+          ></v-btn>
+        </template>
+      </v-card>
+    </v-dialog>
   </v-container>
 </template>
 
@@ -82,12 +134,18 @@ const isLoading = ref(true)
 const submitNotReady = ref(false)
 const compNotOpen = ref(false)
 const scoreUpdated = ref(false)
+const badRequest = ref(false)
+const wrongPass = ref(false)
 
 const userInfo: Ref<User | null> = ref(null)
 
 const score = ref("")
 const imageUrl = ref("")
 const comment = ref("")
+
+const isPrivate  = ref(false)
+const passwd = ref("")
+const showPasswd = ref(false)
 
 const scoreRules = [
   (value: string) => validateNotEmpty(value),
@@ -124,12 +182,21 @@ const commentRules = [
   (value: string) => validateLength(value, 25)
 ]
 
+const passRules = [
+  (value: string) => validateNotEmpty(value),
+  (value: string) => validateLength(value, 50),
+]
+
 async function getCompInfo() {
   const { data } = await supabase.from('tournaments').select('*').eq('id', route.params.id).limit(1).single()
   compInfo.value = data
 
   if (!isCompOpen(data.open_until)) {
     compNotOpen.value = true
+  }
+
+  if (data.passwd.length > 0) {
+    isPrivate.value = true
   }
 }
 
@@ -153,11 +220,21 @@ async function verifyCanSubmit() {
 async function updateScore() {
   const parsedScore = parseFloat(score.value)
   if (isNaN(parsedScore)) {
+    badRequest.value = true
     return
   }
 
   if (userInfo.value == null || compInfo.value == null) {
     return
+  }
+
+  if (isPrivate.value) {
+    const digest = await calcHash(passwd.value)
+    const actualDigest = compInfo.value.passwd
+    if (digest !== actualDigest) {
+      wrongPass.value = true
+      return
+    }
   }
 
   const updatedAt = new Date().toISOString()

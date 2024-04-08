@@ -1,6 +1,6 @@
 <template>
   <v-container fluid>
-    <div v-if="!isLoading" class="text-center">
+    <div v-if="!isLoading && compInfo != null" class="text-center">
       <div class="text-h3 my-4">{{ compInfo.name }}</div>
       <div class="text-h6 ma-1">{{ compInfo.song_title }} [{{ compInfo.difficulty }}]</div>
       <div class="text-subtitle-2 ma-1">スコア登録期間: {{ formatTimestamp(compInfo.open_until) }} まで</div>
@@ -72,17 +72,18 @@
 
 <script setup lang="ts">
 import { createClient } from '@supabase/supabase-js'
+import type { User } from '@supabase/auth-js/src/lib/types'
 const runtimeConfig = useRuntimeConfig()
 const route = useRoute()
 
 const supabase = createClient('https://zczqyrsjbntkitypaaww.supabase.co', runtimeConfig.public.anonKey)
-const compInfo = ref(null)
+const compInfo: Ref<Comp | null> = ref(null)
 const isLoading = ref(true)
 const submitNotReady = ref(false)
 const compNotOpen = ref(false)
 const scoreUpdated = ref(false)
 
-const userInfo = ref(null)
+const userInfo: Ref<User | null> = ref(null)
 
 const score = ref("")
 const imageUrl = ref("")
@@ -155,6 +156,10 @@ async function updateScore() {
     return
   }
 
+  if (userInfo.value == null || compInfo.value == null) {
+    return
+  }
+
   const updatedAt = new Date().toISOString()
 
   const { data, error } = await supabase.from('score').upsert({
@@ -176,4 +181,17 @@ onMounted(() => {
   verifyCanSubmit()
   isLoading.value = false
 })
+
+type Comp = {
+  id: number
+  created_at: string
+  name: string
+  desc: string
+  game_title: string
+  song_title: string
+  difficulty: string
+  open_until: string
+  passwd: string
+  created_by: string
+}
 </script>

@@ -62,6 +62,8 @@
               <v-text-field
                 v-model="openUntilDate"
                 label="Open Until"
+                hint="大会のスコア登録期限"
+                :rules="dateRules"
                 type="date"
               ></v-text-field>
             </v-col>
@@ -156,6 +158,26 @@ const passRules = [
     if (isPrivate.value && value.length == 0) {
       return 'パスワードを入力してください。'
     }
+    return true
+  }
+]
+
+const dateRules = [
+  (value) => {
+    // 有効な日付であることを検証する
+    const preudoTimestamp = value + "T23:59:59+09:00"
+    const d = new Date(preudoTimestamp)
+
+    if (d.toString() === "Invalid Date") {
+      return '有効な日付を入力してください。'
+    }
+
+    const currentDate = new Date()
+
+    if (d < currentDate) {
+      return '過去の日付は指定できません。'
+    }
+    
     return true
   }
 ]

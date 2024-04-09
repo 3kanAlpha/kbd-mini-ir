@@ -43,8 +43,8 @@ const supabase = createClient('https://zczqyrsjbntkitypaaww.supabase.co', runtim
 const comps = ref([])
 const headers = [
   { title: 'Name', value: 'name' },
-  { title: 'Game title', value: 'game_title' },
-  { title: 'Song title', value: 'song_title' },
+  { title: 'Game Title', value: 'game_title' },
+  { title: 'Song Title', value: 'song_title' },
   { title: 'Difficulty', value: 'difficulty' },
   { title: 'Open Until', value: 'open_until'},
 ]

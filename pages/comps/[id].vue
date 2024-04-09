@@ -7,12 +7,19 @@
 
       <div class="text-body-1 ma-4" style="white-space: pre-wrap;">{{ compInfo.desc }}</div>
 
-      <div v-if="isLoggedIn && isCompOpen(compInfo.open_until)" class="my-4">
-        <v-btn size="large" :to="submissionPageUrl" color="blue" prepend-icon="mdi-pencil-box">スコア提出</v-btn>
+      <div v-if="(isLoggedIn && isCompOpen(compInfo.open_until)) || canDelete" class="my-4">
+        <v-row>
+          <v-col v-if="isCompOpen(compInfo.open_until)">
+            <v-btn size="large" :to="submissionPageUrl" color="blue" prepend-icon="mdi-pencil-box">スコア提出</v-btn>
+          </v-col>
+          <v-col v-if="canDelete">
+            <v-btn size="large" color="red" prepend-icon="mdi-calendar-remove" @click="deleteDialog = true">大会を削除する</v-btn>
+          </v-col>
+        </v-row>
       </div>
 
       <div class="text-left">
-        <v-data-table :items="scoreInfo" :headers="headers" item-key="user_uid" v-model:sort-by="sortBy">
+        <v-data-table :items="scoreInfo" :headers="headers" item-key="user_uid" v-model:sort-by="sortBy" multi-sort>
           <template v-slot:item.user_uid="{ item }">
             {{ item.users.nickname }}
           </template>
@@ -22,6 +29,32 @@
         </v-data-table>
       </div>
     </div>
+    <v-dialog
+      v-model="deleteDialog"
+      width="auto"
+    >
+      <v-card
+        max-width="700"
+        prepend-icon="mdi-alert"
+        title="警告"
+        color="red-darken-4"
+      >
+        <v-card-text>本当に大会を削除しますか？<br />大会を削除した場合、この大会に登録されたスコアも同時に削除されます。<br />この操作は取り消すことができません。</v-card-text>
+        <template v-slot:actions>
+          <v-spacer></v-spacer>
+
+          <v-btn
+            text="キャンセル"
+            @click="deleteDialog = false"
+          ></v-btn>
+
+          <v-btn
+            text="削除"
+            @click="deleteComp"
+          ></v-btn>
+        </template>
+      </v-card>
+    </v-dialog>
   </v-container>
 </template>
 
@@ -41,15 +74,24 @@ const headers = [
   { title: 'Result Image URL', value: 'image_url'},
   { title: 'Comment', value: 'comment' },
 ]
-const sortBy = [{ key: 'score', order: 'desc' }]
+/** スコア降順、スコアが同じ場合提出が速い方が順位を上にする */
+const sortBy = [{ key: 'score', order: 'desc' }, { key: 'updated_at', order: 'asc' }]
 
 const isLoggedIn = ref(false)
+const canDelete = ref(false)
+const deleteDialog = ref(false)
 
 const submissionPageUrl = `/submit/${route.params.id}`
 
 async function getCompInfo() {
   const { data } = await supabase.from('tournaments').select('*').eq('id', route.params.id).limit(1).single()
   compInfo.value = data
+
+  // ユーザーが作成した大会かどうかを確認
+  const { data: { user } } = await supabase.auth.getUser()
+  if (user != null && user.id === data.created_by) {
+    canDelete.value = true
+  }
 }
 
 async function getScoreInfo() {
@@ -68,8 +110,29 @@ async function getScoreInfo() {
 
 /** ユーザーが既にログイン済みかどうかを検証する */
 async function setLoggedIn() {
-  const { data, error } = await supabase.auth.getSession()
-  isLoggedIn.value = data.session != null
+  const { data: { user } } = await supabase.auth.getUser()
+  isLoggedIn.value = user != null
+}
+
+/** 大会を削除する */
+async function deleteComp() {
+  const { data: { user } } = await supabase.auth.getUser()
+
+  if (user == null) {
+    return
+  }
+
+  const uid = user.id
+
+  const { error } = await supabase
+    .from('tournaments')
+    .delete()
+    .eq('id', route.params.id)
+    .eq('created_by', uid)
+  
+    if (error == null) {
+      await navigateTo('/')
+    }
 }
 
 onMounted(() => {

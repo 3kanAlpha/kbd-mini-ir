@@ -28,6 +28,17 @@
           <template v-slot:item.updated_at="{ item }">
             {{ formatTimestamp(item.updated_at) }}
           </template>
+          <template v-slot:item.image_url="{ item }">
+            <div v-if="getHostnameFromURL(item.image_url) === 'twitter.com' || getHostnameFromURL(item.image_url) === 'x.com'">
+              <NuxtLink :to="item.image_url" target="_blank"><v-icon color="blue" icon="mdi-twitter" size="x-small" class="mr-1"></v-icon>Twitter</NuxtLink>
+            </div>
+            <div v-else-if="getHostnameFromURL(item.image_url) === 'imgur.com'">
+              <NuxtLink :to="item.image_url" target="_blank">imgur.com</NuxtLink><span class="text-caption text-blue-grey-lighten-1">（外部リンク）</span>
+            </div>
+            <div v-else>
+              {{ item.image_url }}
+            </div>
+          </template>
           <template v-slot:loading>
             <v-skeleton-loader type="table-row@1"></v-skeleton-loader>
           </template>

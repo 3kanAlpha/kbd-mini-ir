@@ -55,7 +55,7 @@
         title="警告"
         color="red-darken-4"
       >
-        <v-card-text>本当に大会を削除しますか？<br />大会を削除した場合、この大会に登録されたスコアも同時に削除されます。<br />この操作は取り消すことができません。</v-card-text>
+        <v-card-text>本当に大会を削除しますか？<br />大会を削除した場合、この大会に登録されたスコアも同時に削除されます。<br />この操作は<span class="font-weight-bold">取り消すことができません</span>。</v-card-text>
         <template v-slot:actions>
           <v-spacer></v-spacer>
 

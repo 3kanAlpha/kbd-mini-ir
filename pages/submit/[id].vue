@@ -39,7 +39,7 @@
           スコアを提出するにはパスワードが必要です。
         </div>
 
-        <div class="my-2">
+        <div class="my-2 mb-6">
           <v-sheet>
             <v-form @submit.prevent="updateScore">
               <v-text-field
@@ -74,7 +74,7 @@
               </v-row>
 
               <v-btn
-                class="mt-2"
+                class="mt-2 font-weight-bold"
                 text="スコアを提出する"
                 type="submit"
                 color="red"
@@ -84,6 +84,12 @@
               ></v-btn>
             </v-form>
           </v-sheet>
+        </div>
+        <v-divider></v-divider>
+        <div class="mt-6">
+          <v-btn prepend-icon="mdi-arrow-u-left-bottom-bold" color="blue" rounded="xl" :to="compPageURL">
+            大会トップに戻る
+          </v-btn>
         </div>
       </div>
     </div>
@@ -146,6 +152,8 @@ const comment = ref("")
 const isPrivate  = ref(false)
 const passwd = ref("")
 const showPasswd = ref(false)
+
+const compPageURL = `/comps/${route.params.id}`
 
 const scoreRules = [
   (value: string) => validateNotEmpty(value),

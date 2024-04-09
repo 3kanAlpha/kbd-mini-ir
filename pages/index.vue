@@ -19,7 +19,7 @@
       <v-btn to="/comps/new" color="blue" prepend-icon="mdi-calendar-edit">大会を作成する</v-btn>
     </div>
     <div>
-      <v-data-table :items="comps" :headers="headers" item-key="name" v-model:sort-by="sortBy">
+      <v-data-table :items="comps" :headers="headers" item-key="name" v-model:sort-by="sortBy" :loading="tableLoading">
         <template v-slot:item.name="{ item }">
           <NuxtLink :to="'comps/' + item.id">{{ item.name }}</NuxtLink>
         </template>
@@ -27,6 +27,9 @@
           <div :class="{'text-grey-lighten-1': !isCompOpen(item.open_until)}">
             {{ formatTimestamp(item.open_until) }}
           </div>
+        </template>
+        <template v-slot:loading>
+          <v-skeleton-loader type="table-row@1"></v-skeleton-loader>
         </template>
       </v-data-table>
     </div>
@@ -49,9 +52,12 @@ const sortBy = [{ key: 'id', order: 'desc' }] // 新しい大会が上に来る�
 
 const isLoggedIn = ref(false)
 
+const tableLoading = ref(true)
+
 async function getComps() {
   const { data } = await supabase.from('tournaments').select()
   comps.value = data
+  tableLoading.value = false
 }
 
 /** ユーザーが既にログイン済みかどうかを検証する */

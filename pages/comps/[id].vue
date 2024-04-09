@@ -8,23 +8,28 @@
       <div class="text-body-1 ma-4" style="white-space: pre-wrap;">{{ compInfo.desc }}</div>
 
       <div v-if="(isLoggedIn && isCompOpen(compInfo.open_until)) || canDelete" class="my-4">
-        <v-row>
-          <v-col v-if="isCompOpen(compInfo.open_until)">
-            <v-btn size="large" :to="submissionPageUrl" color="blue" prepend-icon="mdi-pencil-box">スコア提出</v-btn>
-          </v-col>
-          <v-col v-if="canDelete">
-            <v-btn size="large" color="red" prepend-icon="mdi-calendar-remove" @click="deleteDialog = true">大会を削除する</v-btn>
-          </v-col>
-        </v-row>
+        <div style="max-width: 500px;" class="mx-auto">
+          <v-row>
+            <v-col v-if="isCompOpen(compInfo.open_until)">
+              <v-btn size="large" :to="submissionPageUrl" color="blue" prepend-icon="mdi-pencil-box">スコア提出</v-btn>
+            </v-col>
+            <v-col v-if="canDelete">
+              <v-btn size="large" color="red" prepend-icon="mdi-calendar-remove" @click="deleteDialog = true">大会を削除する</v-btn>
+            </v-col>
+          </v-row>
+        </div>
       </div>
 
       <div class="text-left">
-        <v-data-table :items="scoreInfo" :headers="headers" item-key="user_uid" v-model:sort-by="sortBy" multi-sort>
+        <v-data-table :items="scoreInfo" :headers="headers" item-key="user_uid" v-model:sort-by="sortBy" multi-sort :loading="scoreLoading">
           <template v-slot:item.user_uid="{ item }">
             {{ item.users.nickname }}
           </template>
           <template v-slot:item.updated_at="{ item }">
             {{ formatTimestamp(item.updated_at) }}
+          </template>
+          <template v-slot:loading>
+            <v-skeleton-loader type="table-row@1"></v-skeleton-loader>
           </template>
         </v-data-table>
       </div>
@@ -66,6 +71,7 @@ const route = useRoute()
 const supabase = createClient('https://zczqyrsjbntkitypaaww.supabase.co', runtimeConfig.public.anonKey)
 const compInfo = ref(null)
 const scoreInfo = ref([])
+const scoreLoading = ref(true)
 const isLoading = ref(true)
 const headers = [
   { title: 'Player Name', value: 'user_uid' },
@@ -106,6 +112,7 @@ async function getScoreInfo() {
       users (nickname)`)
     .eq('tournament_id', route.params.id)
   scoreInfo.value = data
+  scoreLoading.value = false
 }
 
 /** ユーザーが既にログイン済みかどうかを検証する */

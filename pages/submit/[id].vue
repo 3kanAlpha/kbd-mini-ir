@@ -40,8 +40,8 @@
         </div>
 
         <div class="my-2 mb-6">
-          <v-sheet>
-            <v-form @submit.prevent="updateScore">
+          <v-sheet class="pa-2">
+            <v-form @submit.prevent="updateScore" ref="form">
               <v-text-field
                 v-model="score"
                 label="Score"
@@ -50,12 +50,15 @@
               <v-text-field
                 v-model="imageUrl"
                 label="Result Image URL"
+                hint="リザルト画像のURLを入力してください。（任意）"
                 :rules="urlRules"
               ></v-text-field>
               <v-text-field
                 v-model="comment"
                 label="Comment"
+                hint="コメントを入力してください。（任意）"
                 :rules="commentRules"
+                :counter="25"
               ></v-text-field>
 
               <v-row v-show="isPrivate">
@@ -131,6 +134,7 @@
 <script setup lang="ts">
 import { createClient } from '@supabase/supabase-js'
 import type { User } from '@supabase/auth-js/src/lib/types'
+import type { VForm } from 'vuetify/components'
 const runtimeConfig = useRuntimeConfig()
 const route = useRoute()
 
@@ -145,6 +149,7 @@ const wrongPass = ref(false)
 
 const userInfo: Ref<User | null> = ref(null)
 
+const form: Ref<VForm | null> = ref(null)
 const score = ref("")
 const imageUrl = ref("")
 const comment = ref("")
@@ -191,7 +196,9 @@ const commentRules = [
 ]
 
 const passRules = [
-  (value: string) => validateNotEmpty(value),
+  (value: string) => {
+    return isPrivate.value ? validateNotEmpty(value) : true
+  },
   (value: string) => validateLength(value, 50),
 ]
 
@@ -226,8 +233,13 @@ async function verifyCanSubmit() {
 }
 
 async function updateScore() {
-  const parsedScore = parseFloat(score.value)
-  if (isNaN(parsedScore)) {
+  if (form.value == null) {
+    return
+  }
+
+  // 入力のバリデーション
+  const { valid } = await form.value.validate()
+  if (!valid) {
     badRequest.value = true
     return
   }
@@ -245,6 +257,7 @@ async function updateScore() {
     }
   }
 
+  const parsedScore = parseFloat(score.value)
   const updatedAt = new Date().toISOString()
 
   const { data, error } = await supabase.from('score').upsert({

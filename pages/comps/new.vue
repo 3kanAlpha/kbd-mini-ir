@@ -24,19 +24,20 @@
       </v-alert>
     </div>
     <div class="my-2" v-if="!hasNotLoggedIn">
-      <v-sheet>
-        <v-form @submit.prevent="createNewComp">
+      <v-sheet class="pa-2" style="min-width: 500px;">
+        <v-form @submit.prevent="createNewComp" ref="form">
           <v-text-field
             v-model="compName"
             label="Name"
             hint="大会の名前を入力してください。"
             :rules="nameRules"
-            counter
+            :counter="25"
           ></v-text-field>
           <v-textarea
             v-model="desc"
             label="Description"
-            counter
+            :rules="descriptionRules"
+            :counter="140"
           ></v-textarea>
           <v-text-field
             v-model="gameTitle"
@@ -92,7 +93,7 @@
           ></v-text-field>
 
           <v-btn
-            class="mt-2"
+            class="mt-2 font-weight-bold"
             text="大会を作成する"
             type="submit"
             color="red"
@@ -128,6 +129,7 @@ const runtimeConfig = useRuntimeConfig()
 
 const supabase = createClient('https://zczqyrsjbntkitypaaww.supabase.co', runtimeConfig.public.anonKey)
 
+const form = ref(null)
 const compName = ref("")
 const desc = ref("")
 const gameTitle = ref("")
@@ -152,6 +154,10 @@ const nameRules = [
   (value) => validateLength(value, 25)
 ]
 
+const descriptionRules = [
+  (value) => validateLength(value, 140)
+]
+
 const passRules = [
   (value) => validateLength(value, 50),
   (value) => {
@@ -165,7 +171,7 @@ const passRules = [
 const dateRules = [
   (value) => {
     // 有効な日付であることを検証する
-    const preudoTimestamp = value + "T23:59:59+09:00"
+    const preudoTimestamp = value + "T" + openUntilTime.value + "+09:00"
     const d = new Date(preudoTimestamp)
 
     if (d.toString() === "Invalid Date") {
@@ -200,7 +206,8 @@ async function verifyLoggedIn() {
 /** 大会を新規作成する */
 async function createNewComp() {
   // 入力のバリデーション
-  if (!validateNotEmptyB(compName.value) || !validateNotEmptyB(gameTitle.value) || !validateNotEmptyB(songTitle.value) || !validateNotEmptyB(difficulty.value)) {
+  const { valid } = await form.value.validate()
+  if (!valid) {
     badRequest.value = true
     return
   }
@@ -210,14 +217,6 @@ async function createNewComp() {
   if (!validateTimestamp(openUntilTimestamp)) {
     badRequest.value = true
     return
-  }
-
-  // パスワードのバリデーション
-  if (isPrivate.value) {
-    if (!validateNotEmptyB(passwd.value) || passwd.value.length > 50) {
-      badRequest.value = true
-      return
-    }
   }
 
   // ログインチェック
@@ -244,10 +243,6 @@ async function createNewComp() {
   if (error == null) {
     compCreated.value = true
   }
-}
-
-function validateNotEmptyB(value) {
-  return value.length > 0;
 }
 
 /** 日付が有効であることを検証する */

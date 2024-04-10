@@ -34,6 +34,7 @@ const theme = useTheme()
 
 function toggleTheme () {
   theme.global.name.value = theme.global.current.value.dark ? 'light' : 'dark'
+  localStorage.setItem('theme', theme.global.name.value)
 }
 
 /** ユーザーが既にログイン済みかどうかを検証する */
@@ -50,4 +51,12 @@ async function jumpToAccountPage() {
     await navigateTo('/login')
   }
 }
+
+onMounted(() => {
+  const userTheme = localStorage.getItem('theme')
+
+  if (userTheme) {
+    theme.global.name.value = userTheme
+  }
+})
 </script>

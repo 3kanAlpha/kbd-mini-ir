@@ -1,7 +1,11 @@
 <template>
   <v-container fluid>
-    <div class="text-h3 ma-6 caveat-bold">IRmania</div>
-    <div class="ma-4 pl-2 mb-6">
+    <div class="text-h3 my-6 caveat-bold">IRmania</div>
+    <div class="mt-4 mb-6">
+      <p class="text-body-1 mb-2">色々な音ゲーでカジュアルに大会を開くためのプラットフォーム</p>
+      <v-btn size="small" rounded="lg" variant="outlined" :prepend-icon="SvgGitHub" href="https://github.com/3kanAlpha/kbd-mini-ir">GitHub</v-btn>
+    </div>
+    <div class="my-4 pl-4 mb-6">
       <p class="text-body-2" v-if="!isLoggedIn">
         スコア登録のやり方:<br />
         1. <NuxtLink to="/login">ログインページ</NuxtLink>からログインする。<br />
@@ -38,6 +42,7 @@
 
 <script setup>
 import { createClient } from '@supabase/supabase-js'
+import SvgGitHub from '~/components/svg/SvgGitHub.vue';
 const runtimeConfig = useRuntimeConfig()
 const supabase = createClient('https://zczqyrsjbntkitypaaww.supabase.co', runtimeConfig.public.anonKey)
 const comps = ref([])

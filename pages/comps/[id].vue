@@ -30,7 +30,7 @@
           </template>
           <template v-slot:item.image_url="{ item }">
             <div v-if="getHostnameFromURL(item.image_url) === 'twitter.com' || getHostnameFromURL(item.image_url) === 'x.com'">
-              <NuxtLink :to="item.image_url" target="_blank"><v-icon color="blue" icon="mdi-twitter" size="x-small" class="mr-1"></v-icon>Twitter</NuxtLink>
+              <NuxtLink :to="item.image_url" target="_blank"><v-icon color="blue" :icon="SvgTwitter" size="x-small" class="mr-1"></v-icon>Twitter</NuxtLink>
             </div>
             <div v-else-if="getHostnameFromURL(item.image_url) === 'imgur.com'">
               <NuxtLink :to="item.image_url" target="_blank">imgur.com</NuxtLink><span class="text-caption text-blue-grey-lighten-1">（外部リンク）</span>
@@ -76,6 +76,7 @@
 
 <script setup>
 import { createClient } from '@supabase/supabase-js'
+import SvgTwitter from '~/components/svg/SvgTwitter.vue';
 const runtimeConfig = useRuntimeConfig()
 const route = useRoute()
 

@@ -15,12 +15,13 @@
       </div>
       <div class="text-body-1 ma-2 mb-6">ランキングに表示される名前を変更できます。</div>
       <div class="ma-2">
-        <v-sheet>
-          <v-form @submit.prevent="updateProfile">
+        <v-sheet class="pa-2">
+          <v-form @submit.prevent="updateProfile" ref="form">
             <v-text-field
               v-model="userName"
               label="Nickname"
               :rules="nameRules"
+              :counter="20"
             ></v-text-field>
 
             <v-btn
@@ -48,10 +49,12 @@
 
 <script setup lang="ts">
 import { createClient } from '@supabase/supabase-js'
+import type { VForm } from 'vuetify/components'
 const runtimeConfig = useRuntimeConfig()
 
 const supabase = createClient('https://zczqyrsjbntkitypaaww.supabase.co', runtimeConfig.public.anonKey)
 
+const form: Ref<VForm | null> = ref(null)
 const userName = ref("")
 const updateAlert = ref(false)
 
@@ -71,8 +74,13 @@ async function signOut() {
 }
 
 async function updateProfile() {
+  if (form.value == null) {
+    return
+  }
+
   const trimmedName = userName.value.trim()
-  if (trimmedName.length < 1) {
+  const { valid } = await form.value.validate()
+  if (!valid) {
     return
   }
 

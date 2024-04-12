@@ -61,11 +61,14 @@
 
           <v-btn
             text="キャンセル"
+            variant="outlined"
             @click="deleteDialog = false"
           ></v-btn>
 
           <v-btn
             text="削除"
+            variant="flat"
+            color="white text-red-darken-4 font-weight-bold"
             @click="deleteComp"
           ></v-btn>
         </template>

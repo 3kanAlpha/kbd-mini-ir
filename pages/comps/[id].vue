@@ -82,7 +82,7 @@
       class="align-center justify-center"
       width="auto"
     >
-      <v-img style="max-height: 600px;" :width="800" :src="previewImageUrl"></v-img>
+      <v-img style="max-height: 75%;" :width="1000" :src="previewImageUrl"></v-img>
     </v-overlay>
   </v-container>
 </template>
@@ -102,7 +102,7 @@ const headers = [
   { title: 'Player Name', value: 'user_uid' },
   { title: 'Score', value: 'score' },
   { title: 'Updated at', value: 'updated_at' },
-  { title: 'Result Image URL', value: 'image_url'},
+  { title: 'Result Image', value: 'image_url'},
   { title: 'Comment', value: 'comment' },
 ]
 /** スコア降順、スコアが同じ場合提出が速い方が順位を上にする */

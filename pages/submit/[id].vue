@@ -29,9 +29,10 @@
 
       <div v-if="!submitNotReady && !compNotOpen">
         <div class="text-body-1 ma-4 mb-6">
-          スコアとリザルト画像のURL（任意）を入力してください。<br />
-          既に提出されているスコアがある場合は、自動的に更新されます。<br />
-          一番最後に提出されたスコアが有効となります。
+          <p class="mb-2">スコアを提出するには、以下のフォームに必要な情報を入力してください。<br />
+          リザルト画像の提出は任意です。</p>
+          <p>既に提出されているスコアがある場合は、自動的に更新されます。<br />
+          一番最後に提出されたスコアが有効となります。</p>
         </div>
 
         <div class="text-body-2 mb-6" v-if="isPrivate">
@@ -39,7 +40,7 @@
           スコアを提出するにはパスワードが必要です。
         </div>
 
-        <div class="my-2 mb-6">
+        <div class="my-2 mb-6 mx-auto" style="max-width: 500px;">
           <v-sheet class="pa-2">
             <v-form @submit.prevent="updateScore" ref="form">
               <v-text-field

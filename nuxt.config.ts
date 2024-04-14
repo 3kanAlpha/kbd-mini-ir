@@ -29,6 +29,9 @@ export default defineNuxtConfig({
   runtimeConfig: {
     public: {
       anonKey: process.env.ANON_KEY,
+      s3Endpoint: process.env.S3_ENDPOINT,
+      s3AccessKey: process.env.S3_ACCESS_KEY_ID,
+      s3Secret: process.env.S3_SECRET,
     }
   },
 })

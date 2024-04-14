@@ -7,6 +7,10 @@
 - [x] 大会の新規作成機能
 - [ ] モバイル環境でのレイアウトの修正
 
+## 使用しているサービス
+- Supabase
+- Cloudflare R2
+
 # Nuxt 3 Minimal Starter
 
 Look at the [Nuxt 3 documentation](https://nuxt.com/docs/getting-started/introduction) to learn more.

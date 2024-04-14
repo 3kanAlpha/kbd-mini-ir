@@ -47,12 +47,30 @@
                 label="Score"
                 :rules="scoreRules"
               ></v-text-field>
+
+              <v-switch
+                v-model="useExternalImage"
+                label="アップロード済みの画像を使う"
+                hide-details
+              ></v-switch>
+
+              <v-file-input
+                v-if="!useExternalImage"
+                v-model="imageFiles"
+                :rules="imageFilesRules"
+                accept="image/*"
+                label="Result Image"
+                show-size
+              ></v-file-input>
               <v-text-field
+                v-else
                 v-model="imageUrl"
                 label="Result Image URL"
                 hint="リザルト画像のURLを入力してください。（任意）"
                 :rules="urlRules"
+                prepend-icon="mdi-web"
               ></v-text-field>
+
               <v-text-field
                 v-model="comment"
                 label="Comment"
@@ -83,6 +101,7 @@
                 color="red"
                 size="large"
                 prepend-icon="mdi-upload"
+                :disabled="uploading"
                 block
               ></v-btn>
             </v-form>
@@ -133,12 +152,28 @@
 
 <script setup lang="ts">
 import { createClient } from '@supabase/supabase-js'
+import { S3Client, PutObjectCommand, DeleteObjectCommand } from '@aws-sdk/client-s3';
+
 import type { User } from '@supabase/auth-js/src/lib/types'
 import type { VForm } from 'vuetify/components'
+
 const runtimeConfig = useRuntimeConfig()
 const route = useRoute()
 
 const supabase = createClient('https://zczqyrsjbntkitypaaww.supabase.co', runtimeConfig.public.anonKey)
+
+const bucketName = 'irmania'
+const s3 = new S3Client({
+  region: 'auto',
+  endpoint: runtimeConfig.public.s3Endpoint,
+  credentials: {
+    accessKeyId: runtimeConfig.public.s3AccessKey,
+    secretAccessKey: runtimeConfig.public.s3Secret,
+  }
+})
+const publicDomain = 'https://irpics.mgcup.net/'
+
+/** 大会情報 */
 const compInfo: Ref<Comp | null> = ref(null)
 const isLoading = ref(true)
 const submitNotReady = ref(false)
@@ -147,16 +182,24 @@ const scoreUpdated = ref(false)
 const badRequest = ref(false)
 const wrongPass = ref(false)
 
+/** ユーザーの認証情報 */
 const userInfo: Ref<User | null> = ref(null)
 
+// フォーム用変数
 const form: Ref<VForm | null> = ref(null)
 const score = ref("")
 const imageUrl = ref("")
+const imageFiles: Ref<File[]> = ref([])
 const comment = ref("")
+
+const useExternalImage = ref(false)
 
 const isPrivate  = ref(false)
 const passwd = ref("")
 const showPasswd = ref(false)
+
+/** スコア提出処理中にボタンを無効にするフラグ */
+const uploading = ref(false)
 
 const compPageURL = `/comps/${route.params.id}`
 
@@ -174,7 +217,7 @@ const scoreRules = [
 
 const urlRules = [
   (value: string) => {
-    if (value.length == 0) {
+    if (!useExternalImage.value || value.length == 0) {
       return true
     }
 
@@ -188,6 +231,15 @@ const urlRules = [
       return '有効なURLを入力してください。'
     }
     return true
+  }
+]
+
+const imageFilesRules = [
+  (value: File[]) => {
+    if (useExternalImage.value || !value || !value.length || value[0].size <= 5000000) {
+      return true
+    }
+    return '画像ファイルのサイズは5MB以下にしてください。'
   }
 ]
 
@@ -257,6 +309,13 @@ async function updateScore() {
     }
   }
 
+  uploading.value = true
+
+  let iu = imageUrl.value
+  if (!useExternalImage.value) {
+    iu = await uploadImage()
+  }
+
   const parsedScore = parseFloat(score.value)
   const updatedAt = new Date().toISOString()
 
@@ -264,7 +323,7 @@ async function updateScore() {
     user_uid: userInfo.value.id,
     tournament_id: compInfo.value.id,
     score: parsedScore,
-    image_url: imageUrl.value,
+    image_url: iu,
     updated_at: updatedAt,
     comment: comment.value,
   })
@@ -272,6 +331,61 @@ async function updateScore() {
   if (error == null) {
     scoreUpdated.value = true
   }
+  uploading.value = false
+}
+
+async function uploadImage() {
+  if (!compInfo.value || !userInfo.value || !imageFiles.value.length) {
+    return ""
+  }
+
+  // 古い画像がある場合、バケットから削除する
+  const { data: score, error } = await supabase
+    .from('score')
+    .select('image_url')
+    .eq('user_uid', userInfo.value.id)
+    .eq('tournament_id', compInfo.value.id)
+    .limit(1)
+    .single()
+  
+  if (score != null) {
+    // 外部サイトのURLの場合は削除しない
+    if (score.image_url.startsWith(publicDomain)) {
+      const oldKey = score.image_url.replace(publicDomain, '')
+      const command = new DeleteObjectCommand({
+        Bucket: bucketName,
+        Key: oldKey,
+      })
+
+      try {
+        await s3.send(command)
+        console.log('Deleted old image')
+      } catch (err) {
+        console.error(err)
+      }
+    }
+  }
+
+  const imgExt = getFileExt(imageFiles.value[0].name)
+  const shortUUID = shortenUUID(userInfo.value.id)
+  const randomStr = generateRandomString(8)
+  const fileKey = `comp-${compInfo.value.id}/${shortUUID}_${randomStr}.${imgExt}`
+
+  const command = new PutObjectCommand({
+    Bucket: bucketName,
+    Key: fileKey,
+    Body: imageFiles.value[0],
+    ContentType: imageFiles.value[0].type,
+  })
+
+  try {
+    const response = await s3.send(command);
+    return publicDomain + fileKey
+  } catch (err) {
+    console.error(err);
+  }
+
+  return ""
 }
 
 onMounted(() => {

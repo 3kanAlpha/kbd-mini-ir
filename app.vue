@@ -7,7 +7,7 @@
 </template>
 
 <script lang="ts" setup>
-const appName = 'IRmania（β）'
+const appName = 'IRmania（γ）'
 const desc = '色んなゲームでカジュアル大会を開くためのプラットフォーム'
  
 useHead({

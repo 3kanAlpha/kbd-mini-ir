@@ -35,6 +35,9 @@
             <div v-else-if="getHostnameFromURL(item.image_url) === 'imgur.com'">
               <NuxtLink :to="item.image_url" target="_blank">imgur.com</NuxtLink><span class="text-caption text-blue-grey-lighten-1">（外部リンク）</span>
             </div>
+            <div v-else-if="getHostnameFromURL(item.image_url) === 'irpics.mgcup.net'">
+              <v-btn density="comfortable" variant="text" color="blue" @click="openPreviewDialog(item.image_url)">Click to preview</v-btn>
+            </div>
             <div v-else>
               {{ item.image_url }}
             </div>
@@ -74,6 +77,13 @@
         </template>
       </v-card>
     </v-dialog>
+    <v-overlay
+      v-model="previewImageDialog"
+      class="align-center justify-center"
+      width="auto"
+    >
+      <v-img style="max-height: 600px;" :width="800" :src="previewImageUrl"></v-img>
+    </v-overlay>
   </v-container>
 </template>
 
@@ -101,6 +111,9 @@ const sortBy = [{ key: 'score', order: 'desc' }, { key: 'updated_at', order: 'as
 const isLoggedIn = ref(false)
 const canDelete = ref(false)
 const deleteDialog = ref(false)
+
+const previewImageDialog = ref(false)
+const previewImageUrl = ref("")
 
 const submissionPageUrl = `/submit/${route.params.id}`
 
@@ -155,6 +168,11 @@ async function deleteComp() {
     if (error == null) {
       await navigateTo('/')
     }
+}
+
+function openPreviewDialog(image_url) {
+  previewImageUrl.value = image_url
+  previewImageDialog.value = true
 }
 
 onMounted(() => {

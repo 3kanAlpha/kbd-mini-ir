@@ -55,14 +55,23 @@
                 hide-details
               ></v-switch>
 
-              <v-file-input
-                v-if="!useExternalImage"
-                v-model="imageFiles"
-                :rules="imageFilesRules"
-                accept="image/*"
-                label="Result Image"
-                show-size
-              ></v-file-input>
+              <div v-if="!useExternalImage">
+                <v-file-input
+                  class="mb-n2"
+                  v-model="imageFiles"
+                  :rules="imageFilesRules"
+                  accept="image/*"
+                  label="Result Image"
+                  show-size
+                ></v-file-input>
+                <v-img
+                  v-if="previewSrc.length > 0"
+                  :src="previewSrc"
+                  :width="300"
+                  height="auto"
+                  class="mx-auto mb-4"
+                ></v-img>
+              </div>
               <v-text-field
                 v-else
                 v-model="imageUrl"
@@ -194,6 +203,7 @@ const imageFiles: Ref<File[]> = ref([])
 const comment = ref("")
 
 const useExternalImage = ref(false)
+const previewSrc = ref("")
 
 const isPrivate  = ref(false)
 const passwd = ref("")
@@ -393,6 +403,14 @@ onMounted(() => {
   getCompInfo()
   verifyCanSubmit()
   isLoading.value = false
+})
+
+watch(imageFiles, (newFiles) => {
+  if (newFiles.length) {
+    previewSrc.value = URL.createObjectURL(newFiles[0])
+  } else {
+    previewSrc.value = ""
+  }
 })
 
 type Comp = {

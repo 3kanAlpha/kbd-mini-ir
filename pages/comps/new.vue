@@ -99,6 +99,7 @@
             color="red"
             size="large"
             prepend-icon="mdi-earth"
+            :disabled="processing"
             block
           ></v-btn>
         </v-form>
@@ -146,6 +147,9 @@ const userInfo = ref(null)
 const hasNotLoggedIn = ref(false)
 const compCreated = ref(false)
 const badRequest = ref(false)
+
+/** 大会作成処理中にボタンを無効化する用フラグ */
+const processing = ref(false)
 
 const required = (value) => validateNotEmpty(value)
 
@@ -225,6 +229,8 @@ async function createNewComp() {
     return
   }
 
+  processing.value = true
+
   let digest = ''
   if (isPrivate.value) digest = await calcHash(passwd.value)
   
@@ -243,6 +249,7 @@ async function createNewComp() {
   if (error == null) {
     compCreated.value = true
   }
+  processing.value = false
 }
 
 /** 日付が有効であることを検証する */

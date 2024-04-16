@@ -57,7 +57,7 @@
 
               <div v-if="!useExternalImage">
                 <v-file-input
-                  class="mb-n2"
+                  :class="{ 'mb-n2': previewSrc.length > 0 }"
                   v-model="imageFiles"
                   :rules="imageFilesRules"
                   accept="image/*"
@@ -322,6 +322,9 @@ async function updateScore() {
 
   uploading.value = true
 
+  // 以前のリザルト画像を削除する
+  await deleteOldImageIfExists()
+
   let iu = imageUrl.value
   if (!useExternalImage.value) {
     iu = await uploadImage()
@@ -350,33 +353,6 @@ async function uploadImage() {
     return ""
   }
 
-  // 古い画像がある場合、バケットから削除する
-  const { data: score, error } = await supabase
-    .from('score')
-    .select('image_url')
-    .eq('user_uid', userInfo.value.id)
-    .eq('tournament_id', compInfo.value.id)
-    .limit(1)
-    .single()
-  
-  if (score != null) {
-    // 外部サイトのURLの場合は削除しない
-    if (score.image_url.startsWith(publicDomain)) {
-      const oldKey = score.image_url.replace(publicDomain, '')
-      const command = new DeleteObjectCommand({
-        Bucket: bucketName,
-        Key: oldKey,
-      })
-
-      try {
-        await s3.send(command)
-        console.log('Deleted old image')
-      } catch (err) {
-        console.error(err)
-      }
-    }
-  }
-
   const imgExt = getFileExt(imageFiles.value[0].name)
   const shortUUID = shortenUUID(userInfo.value.id)
   const randomStr = generateRandomString(8)
@@ -397,6 +373,38 @@ async function uploadImage() {
   }
 
   return ""
+}
+
+/** 古いリザルト画像をバケットから削除する */
+async function deleteOldImageIfExists() {
+  if (!compInfo.value || !userInfo.value) {
+    return
+  }
+
+  const { data: score, error } = await supabase
+    .from('score')
+    .select('image_url')
+    .eq('user_uid', userInfo.value.id)
+    .eq('tournament_id', compInfo.value.id)
+    .limit(1)
+    .single()
+  
+  if (score != null) {
+    // 外部サイトのURLの場合は削除しない
+    if (score.image_url.startsWith(publicDomain)) {
+      const oldKey = score.image_url.replace(publicDomain, '')
+      const command = new DeleteObjectCommand({
+        Bucket: bucketName,
+        Key: oldKey,
+      })
+
+      try {
+        await s3.send(command)
+      } catch (err) {
+        console.error(err)
+      }
+    }
+  }
 }
 
 onMounted(() => {

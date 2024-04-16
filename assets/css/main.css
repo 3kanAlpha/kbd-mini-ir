@@ -1,0 +1,6 @@
+@import url('~/assets/css/table.css');
+
+#page-content {
+  overflow-wrap: anywhere;
+  line-break: strict;
+}

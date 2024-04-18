@@ -22,6 +22,13 @@
 
       <div class="text-left">
         <v-data-table :items="scoreInfo" :headers="headers" item-key="user_uid" v-model:sort-by="sortBy" multi-sort :loading="scoreLoading">
+          <template v-slot:item.rank="{ item }">
+            <div class="text-center">
+              <div v-if="item.rank == 1"><v-icon icon="mdi-crown" color="amber"></v-icon></div>
+              <div v-else-if="item.rank <= 3" class="font-weight-bold">{{ item.rank }}</div>
+              <div v-else>{{ item.rank }}</div>
+            </div>
+          </template>
           <template v-slot:item.user_uid="{ item }">
             {{ item.users.nickname }}
           </template>
@@ -99,6 +106,7 @@ const scoreInfo = ref([])
 const scoreLoading = ref(true)
 const isLoading = ref(true)
 const headers = [
+  { title: 'Rank', value: 'rank'},
   { title: 'Player Name', value: 'user_uid' },
   { title: 'Score', value: 'score' },
   { title: 'Updated at', value: 'updated_at' },
@@ -139,6 +147,9 @@ async function getScoreInfo() {
       comment,
       users (nickname)`)
     .eq('tournament_id', route.params.id)
+    .order('score', { ascending: false })
+    .order('updated_at', { ascending: true })
+  appendRank(data)
   scoreInfo.value = data
   scoreLoading.value = false
 }

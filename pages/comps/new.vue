@@ -36,15 +36,17 @@
           <v-textarea
             v-model="desc"
             label="Description"
+            hint="大会の説明文を入力してください。"
             :rules="descriptionRules"
             :counter="140"
           ></v-textarea>
-          <v-text-field
+          <v-combobox
             v-model="gameTitle"
             label="Game Title"
             hint="大会で使うゲームの名前を入力してください。"
-            :rules="[required]"
-          ></v-text-field>
+            :rules="gameTitleRules"
+            :items="getGameTitles()"
+          ></v-combobox>
           <v-text-field
             v-model="songTitle"
             label="Song Title"
@@ -133,7 +135,7 @@ const supabase = createClient('https://zczqyrsjbntkitypaaww.supabase.co', runtim
 const form = ref(null)
 const compName = ref("")
 const desc = ref("")
-const gameTitle = ref("")
+const gameTitle = ref(null)
 const songTitle = ref("")
 const difficulty = ref("")
 const openUntilDate = ref()
@@ -160,6 +162,16 @@ const nameRules = [
 
 const descriptionRules = [
   (value) => validateLength(value, 140)
+]
+
+const gameTitleRules = [
+  (value) => {
+    // Comboboxは空のときnullになる
+    if (value == null) {
+      return 'この項目は必須です。'
+    }
+    return true
+  }
 ]
 
 const passRules = [

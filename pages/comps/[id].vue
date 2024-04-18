@@ -22,32 +22,37 @@
 
       <div class="text-left">
         <v-data-table :items="scoreInfo" :headers="headers" item-key="user_uid" v-model:sort-by="sortBy" multi-sort :loading="scoreLoading">
-          <template v-slot:item.rank="{ item }">
-            <div class="text-center">
-              <div v-if="item.rank == 1"><v-icon icon="mdi-crown" color="amber"></v-icon></div>
-              <div v-else-if="item.rank <= 3" class="font-weight-bold">{{ item.rank }}</div>
-              <div v-else>{{ item.rank }}</div>
-            </div>
-          </template>
-          <template v-slot:item.user_uid="{ item }">
-            {{ item.users.nickname }}
-          </template>
-          <template v-slot:item.updated_at="{ item }">
-            {{ formatTimestamp(item.updated_at) }}
-          </template>
-          <template v-slot:item.image_url="{ item }">
-            <div v-if="getHostnameFromURL(item.image_url) === 'twitter.com' || getHostnameFromURL(item.image_url) === 'x.com'">
-              <NuxtLink :to="item.image_url" target="_blank"><v-icon color="blue" :icon="SvgTwitter" size="x-small" class="mr-1"></v-icon>Twitter</NuxtLink>
-            </div>
-            <div v-else-if="getHostnameFromURL(item.image_url) === 'imgur.com'">
-              <NuxtLink :to="item.image_url" target="_blank">imgur.com</NuxtLink><span class="text-caption text-blue-grey-lighten-1">（外部リンク）</span>
-            </div>
-            <div v-else-if="getHostnameFromURL(item.image_url) === 'irpics.mgcup.net'">
-              <v-btn density="comfortable" variant="text" color="blue" @click="openPreviewDialog(item.image_url)">Click to preview</v-btn>
-            </div>
-            <div v-else>
-              {{ item.image_url }}
-            </div>
+          <template v-slot:item="{ item }">
+            <tr>
+              <td data-label="Rank">
+                <div class="text-center">
+                  <div v-if="item.rank == 1"><v-icon icon="mdi-crown" color="amber"></v-icon></div>
+                  <div v-else-if="item.rank == 2"><v-icon icon="mdi-crown" color="blue-grey-lighten-2"></v-icon></div>
+                  <div v-else-if="item.rank == 3"><v-icon icon="mdi-crown" color="brown"></v-icon></div>
+                  <div v-else>{{ item.rank }}</div>
+                </div>
+              </td>
+              <td data-label="Player Name">{{ item.users.nickname }}</td>
+              <td data-label="Score">{{ item.score }}</td>
+              <td data-label="Updated at">
+                {{ formatTimestamp(item.updated_at) }}
+              </td>
+              <td data-label="Result Image">
+                <div v-if="getHostnameFromURL(item.image_url) === 'twitter.com' || getHostnameFromURL(item.image_url) === 'x.com'">
+                  <NuxtLink :to="item.image_url" target="_blank"><v-icon color="blue" :icon="SvgTwitter" size="x-small" class="mr-1"></v-icon>Twitter</NuxtLink>
+                </div>
+                <div v-else-if="getHostnameFromURL(item.image_url) === 'imgur.com'">
+                  <NuxtLink :to="item.image_url" target="_blank">imgur.com</NuxtLink><span class="text-caption text-blue-grey-lighten-1">（外部リンク）</span>
+                </div>
+                <div v-else-if="getHostnameFromURL(item.image_url) === 'irpics.mgcup.net'">
+                  <v-btn density="comfortable" variant="text" color="blue" @click="openPreviewDialog(item.image_url)">Click to preview</v-btn>
+                </div>
+                <div v-else>
+                  {{ item.image_url }}
+                </div>
+              </td>
+              <td data-label="Comment">{{ item.comment }}</td>
+            </tr>
           </template>
           <template v-slot:loading>
             <v-skeleton-loader type="table-row@1"></v-skeleton-loader>

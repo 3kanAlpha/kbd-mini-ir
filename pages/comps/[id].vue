@@ -38,14 +38,17 @@
                 {{ formatTimestamp(item.updated_at) }}
               </td>
               <td data-label="Result Image">
-                <div v-if="getHostnameFromURL(item.image_url) === 'irpics.mgcup.net'">
-                  <v-btn density="comfortable" variant="text" color="blue" @click="openPreviewDialog(item.image_url)">Click to preview</v-btn>
-                </div>
-                <div v-else-if="isTrustedSite(item.image_url)">
-                  <NuxtLink :to="item.image_url" target="_blank">{{ getHostnameFromURL(item.image_url) }}</NuxtLink><span class="text-caption text-blue-grey-lighten-1">（外部リンク）</span>
-                </div>
+                <div v-if="isPortraitMobile"><span class="font-weight-light text-grey-lighten-1" style="font-size: 0.7em;">モバイル環境では閲覧できません</span></div>
                 <div v-else>
-                  {{ item.image_url }}
+                  <div v-if="getHostnameFromURL(item.image_url) === 'irpics.mgcup.net'">
+                    <v-btn density="comfortable" variant="text" color="blue" @click="openPreviewDialog(item.image_url)">Click to preview</v-btn>
+                  </div>
+                  <div v-else-if="isTrustedSite(item.image_url)">
+                    <NuxtLink :to="item.image_url" target="_blank">{{ getHostnameFromURL(item.image_url) }}</NuxtLink><span class="text-caption text-blue-grey-lighten-1">（外部リンク）</span>
+                  </div>
+                  <div v-else>
+                    {{ item.image_url }}
+                  </div>
                 </div>
               </td>
               <td data-label="Comment">{{ item.comment }}</td>
@@ -125,6 +128,9 @@ const deleteDialog = ref(false)
 const previewImageDialog = ref(false)
 const previewImageUrl = ref("")
 
+const isPortraitMobile = ref(false)
+const mediaQuery = window.matchMedia('(max-width: 600px)');
+
 const submissionPageUrl = `/submit/${route.params.id}`
 
 async function getCompInfo() {
@@ -188,10 +194,22 @@ function openPreviewDialog(image_url) {
   previewImageDialog.value = true
 }
 
+function onChangeScreenSize(query) {
+  if (query.matches) {
+    isPortraitMobile.value = true
+  } else {
+    isPortraitMobile.value = false
+  }
+}
+
 onMounted(() => {
   getCompInfo()
   getScoreInfo()
   setLoggedIn()
+
+  onChangeScreenSize(mediaQuery)
+  mediaQuery.addEventListener('change', onChangeScreenSize)
+
   isLoading.value = false
 })
 </script>

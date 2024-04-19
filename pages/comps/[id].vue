@@ -25,7 +25,7 @@
           <template v-slot:item="{ item }">
             <tr>
               <td data-label="Rank">
-                <div class="text-center">
+                <div :class="{ 'text-center': !isPortraitMobile }">
                   <div v-if="item.rank == 1"><v-icon icon="mdi-crown" color="amber"></v-icon></div>
                   <div v-else-if="item.rank == 2"><v-icon icon="mdi-crown" color="blue-grey-lighten-2"></v-icon></div>
                   <div v-else-if="item.rank == 3"><v-icon icon="mdi-crown" color="brown"></v-icon></div>
@@ -101,7 +101,6 @@
 
 <script setup>
 import { createClient } from '@supabase/supabase-js'
-import SvgTwitter from '~/components/svg/SvgTwitter.vue';
 const runtimeConfig = useRuntimeConfig()
 const route = useRoute()
 

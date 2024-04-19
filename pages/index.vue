@@ -24,13 +24,20 @@
     </div>
     <div>
       <v-data-table :items="comps" :headers="headers" item-key="name" v-model:sort-by="sortBy" :loading="tableLoading">
-        <template v-slot:item.name="{ item }">
-          <NuxtLink :to="'comps/' + item.id">{{ item.name }}</NuxtLink>
-        </template>
-        <template v-slot:item.open_until="{ item }">
-          <div :class="{'text-grey-lighten-1': !isCompOpen(item.open_until)}">
-            {{ formatTimestamp(item.open_until) }}
-          </div>
+        <template v-slot:item="{ item }">
+          <tr>
+            <td data-label="Name">
+              <NuxtLink :to="'comps/' + item.id">{{ item.name }}</NuxtLink>
+            </td>
+            <td data-label="Game Title">{{ item.game_title }}</td>
+            <td data-label="Song Title">{{ item.song_title }}</td>
+            <td data-label="Difficulty">{{ item.difficulty }}</td>
+            <td data-label="Open Until">
+              <div :class="{'text-grey-lighten-1': !isCompOpen(item.open_until)}">
+                {{ formatTimestamp(item.open_until) }}
+              </div>
+            </td>
+          </tr>
         </template>
         <template v-slot:loading>
           <v-skeleton-loader type="table-row@1"></v-skeleton-loader>

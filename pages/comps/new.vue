@@ -80,9 +80,9 @@
             </v-col>
           </v-row>
 
-          <v-switch label="スコアのソートを昇順にする" v-model="useAscOrder" class="mb-n2"></v-switch>
+          <v-switch label="スコアのソートを昇順にする" v-model="useAscOrder" color="primary" class="mb-n2"></v-switch>
 
-          <v-switch label="プライベート大会にする" v-model="isPrivate"></v-switch>
+          <v-switch label="プライベート大会にする" v-model="isPrivate" color="primary"></v-switch>
           <v-text-field
             v-model="passwd"
             label="Password"

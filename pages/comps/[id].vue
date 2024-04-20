@@ -21,7 +21,7 @@
       </div>
 
       <div class="text-left">
-        <v-data-table :items="scoreInfo" :headers="headers" item-key="user_uid" v-model:sort-by="sortBy" multi-sort :loading="scoreLoading">
+        <v-data-table :items="scoreInfo" :headers="headers" item-key="user_uid" :loading="scoreLoading">
           <template v-slot:item="{ item }">
             <tr>
               <td data-label="Rank">
@@ -117,6 +117,7 @@ const headers = [
   { title: 'Result Image', value: 'image_url'},
   { title: 'Comment', value: 'comment' },
 ]
+const useAscOrder = ref(false)
 /** スコア降順、スコアが同じ場合提出が速い方が順位を上にする */
 const sortBy = [{ key: 'score', order: 'desc' }, { key: 'updated_at', order: 'asc' }]
 
@@ -127,8 +128,7 @@ const deleteDialog = ref(false)
 const previewImageDialog = ref(false)
 const previewImageUrl = ref("")
 
-const isPortraitMobile = ref(false)
-const mediaQuery = window.matchMedia('(max-width: 600px)');
+const { isPortraitMobile } = useMobileDetector()
 
 const submissionPageUrl = `/submit/${route.params.id}`
 
@@ -144,6 +144,8 @@ async function getCompInfo() {
 }
 
 async function getScoreInfo() {
+  await getCompSettings()
+
   const { data } = await supabase
     .from('score')
     .select(`
@@ -154,11 +156,16 @@ async function getScoreInfo() {
       comment,
       users (nickname)`)
     .eq('tournament_id', route.params.id)
-    .order('score', { ascending: false })
+    .order('score', { ascending: useAscOrder.value })
     .order('updated_at', { ascending: true })
   appendRank(data)
   scoreInfo.value = data
   scoreLoading.value = false
+}
+
+async function getCompSettings() {
+  const { data } = await supabase.from('tournaments').select('asc_order').eq('id', route.params.id).limit(1).single()
+  useAscOrder.value = data.asc_order
 }
 
 /** ユーザーが既にログイン済みかどうかを検証する */
@@ -193,21 +200,10 @@ function openPreviewDialog(image_url) {
   previewImageDialog.value = true
 }
 
-function onChangeScreenSize(query) {
-  if (query.matches) {
-    isPortraitMobile.value = true
-  } else {
-    isPortraitMobile.value = false
-  }
-}
-
 onMounted(() => {
   getCompInfo()
   getScoreInfo()
   setLoggedIn()
-
-  onChangeScreenSize(mediaQuery)
-  mediaQuery.addEventListener('change', onChangeScreenSize)
 
   isLoading.value = false
 })

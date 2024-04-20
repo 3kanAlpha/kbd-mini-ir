@@ -80,6 +80,8 @@
             </v-col>
           </v-row>
 
+          <v-switch label="スコアのソートを昇順にする" v-model="useAscOrder" class="mb-n2"></v-switch>
+
           <v-switch label="プライベート大会にする" v-model="isPrivate"></v-switch>
           <v-text-field
             v-model="passwd"
@@ -140,6 +142,7 @@ const songTitle = ref("")
 const difficulty = ref("")
 const openUntilDate = ref()
 const openUntilTime = ref("00:00:00")
+const useAscOrder = ref(false)
 const isPrivate = ref(false)
 const passwd = ref("")
 const showPasswd = ref(false)
@@ -256,6 +259,7 @@ async function createNewComp() {
       open_until: openUntilTimestamp,
       passwd: digest,
       created_by: userInfo.value.id,
+      asc_order: useAscOrder.value,
     })
   
   if (error == null) {

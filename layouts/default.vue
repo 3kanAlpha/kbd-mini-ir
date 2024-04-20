@@ -2,11 +2,8 @@
   <v-layout>
     <v-app-bar
       color="blue"
+      :class="{ 'px-16': !isPortraitMobile }"
     >
-      <template v-slot:prepend>
-        <v-app-bar-nav-icon></v-app-bar-nav-icon>
-      </template>
-
       <v-app-bar-title>IRmania</v-app-bar-title>
 
       <template v-slot:append>
@@ -31,6 +28,8 @@ const runtimeConfig = useRuntimeConfig()
 const supabase = createClient('https://zczqyrsjbntkitypaaww.supabase.co', runtimeConfig.public.anonKey)
 
 const theme = useTheme()
+
+const { isPortraitMobile } = useMobileDetector()
 
 function toggleTheme () {
   theme.global.name.value = theme.global.current.value.dark ? 'light' : 'dark'

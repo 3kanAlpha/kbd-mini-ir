@@ -36,8 +36,11 @@
         </div>
 
         <div class="text-body-2 mb-6" v-if="isPrivate">
-          この大会はプライベート大会です。<br />
-          スコアを提出するにはパスワードが必要です。
+          <p v-if="hasScore">この大会はプライベート大会です。</p>
+          <p v-else>
+            この大会はプライベート大会です。<br />
+            スコアを提出するにはパスワードが必要です。
+          </p>
         </div>
 
         <div class="my-2 mb-6 mx-auto" style="max-width: 500px;">
@@ -89,7 +92,7 @@
                 :counter="25"
               ></v-text-field>
 
-              <v-row v-show="isPrivate">
+              <v-row v-show="isPrivate && !hasScore">
                 <v-col cols="4"><v-list-subheader>パスワード</v-list-subheader></v-col>
                 <v-col cols="8">
                   <v-text-field
@@ -209,6 +212,8 @@ const isPrivate  = ref(false)
 const passwd = ref("")
 const showPasswd = ref(false)
 
+const hasScore = ref(false)
+
 /** スコア提出処理中にボタンを無効にするフラグ */
 const uploading = ref(false)
 
@@ -260,7 +265,7 @@ const commentRules = [
 
 const passRules = [
   (value: string) => {
-    return isPrivate.value ? validateNotEmpty(value) : true
+    return (isPrivate.value && !hasScore.value) ? validateNotEmpty(value) : true
   },
   (value: string) => validateLength(value, 50),
 ]
@@ -311,7 +316,7 @@ async function updateScore() {
     return
   }
 
-  if (isPrivate.value) {
+  if (isPrivate.value && !hasScore.value) {
     const digest = await calcHash(passwd.value)
     const actualDigest = compInfo.value.passwd
     if (digest !== actualDigest) {
@@ -407,10 +412,31 @@ async function deleteOldImageIfExists() {
   }
 }
 
+async function checkHasScore() {
+  const { data: { user } } = await supabase.auth.getUser()
+  if (!user) {
+    return
+  }
+
+  const { count, error } = await supabase
+    .from('score')
+    .select('id', { count: 'exact', head: true })
+    .eq('user_uid', user.id)
+    .eq('tournament_id', route.params.id)
+  
+  if (count) {
+    hasScore.value = true
+  }
+}
+
 onMounted(() => {
   getCompInfo()
   verifyCanSubmit()
-  isLoading.value = false
+
+  nextTick(() => {
+    checkHasScore()
+    isLoading.value = false
+  })
 })
 
 watch(imageFiles, (newFiles) => {

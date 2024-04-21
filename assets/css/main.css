@@ -9,6 +9,6 @@
   text-decoration: none;
 }
 
-#page-content a:hover {
+#page-content a:not(.v-btn):hover {
   text-decoration: underline;
 }

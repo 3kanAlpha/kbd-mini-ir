@@ -32,7 +32,9 @@
                   <div v-else>{{ item.rank }}</div>
                 </div>
               </td>
-              <td data-label="Player Name">{{ item.users.nickname }}</td>
+              <td data-label="Player Name">
+                <span :class="{ 'text-pink-accent-2': userInfo && userInfo.id === item.user_uid }">{{ item.users.nickname }}</span>
+              </td>
               <td data-label="Score">{{ item.score }}</td>
               <td data-label="Updated at">
                 {{ formatTimestamp(item.updated_at) }}
@@ -128,6 +130,8 @@ const deleteDialog = ref(false)
 const previewImageDialog = ref(false)
 const previewImageUrl = ref("")
 
+const userInfo = ref(null)
+
 const { isPortraitMobile } = useMobileDetector()
 
 const submissionPageUrl = `/submit/${route.params.id}`
@@ -171,6 +175,7 @@ async function getCompSettings() {
 /** ユーザーが既にログイン済みかどうかを検証する */
 async function setLoggedIn() {
   const { data: { user } } = await supabase.auth.getUser()
+  userInfo.value = user
   isLoggedIn.value = user != null
 }
 
@@ -205,6 +210,8 @@ onMounted(() => {
   getScoreInfo()
   setLoggedIn()
 
-  isLoading.value = false
+  nextTick(() => {
+    isLoading.value = false
+  })
 })
 </script>

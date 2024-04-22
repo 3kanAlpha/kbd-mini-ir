@@ -18,9 +18,17 @@ const runtimeConfig = useRuntimeConfig()
 
 const supabase = createClient('https://zczqyrsjbntkitypaaww.supabase.co', runtimeConfig.public.anonKey)
 
+/** 認証後のリダイレクト先を返す */
+function getRedirectURL() {
+  return `${window.location.origin}/`
+}
+
 async function signInWithDiscord() {
   const { data, error } = await supabase.auth.signInWithOAuth({
     provider: 'discord',
+    options: {
+      redirectTo: getRedirectURL(),
+    }
   })
 }
 </script>

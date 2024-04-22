@@ -23,20 +23,20 @@
       <v-btn to="/comps/new" color="blue" prepend-icon="mdi-calendar-edit">大会を作成する</v-btn>
     </div>
     <div>
-      <v-card flat>
+      <v-card>
         <v-tabs v-model="tab" align-tabs="center" color="deep-purple-accent-3">
           <v-tab value="open">開催中</v-tab>
           <v-tab value="closed">終了済み</v-tab>
         </v-tabs>
+        <v-window v-model="tab">
+          <v-window-item value="open">
+            <CompTable table-title="開催中の大会" />
+          </v-window-item>
+          <v-window-item value="closed">
+            <CompTable show-closed table-title="終了済みの大会" />
+          </v-window-item>
+        </v-window>
       </v-card>
-      <v-window v-model="tab">
-        <v-window-item value="open">
-          <CompTable table-title="開催中の大会" />
-        </v-window-item>
-        <v-window-item value="closed">
-          <CompTable show-closed table-title="終了済みの大会" />
-        </v-window-item>
-      </v-window>
     </div>
   </v-container>
 </template>
@@ -49,7 +49,7 @@ const supabase = createClient('https://zczqyrsjbntkitypaaww.supabase.co', runtim
 
 const isLoggedIn = ref(false)
 
-const tab = ref('open')
+const tab = ref(null)
 
 /** ユーザーが既にログイン済みかどうかを検証する */
 async function setLoggedIn() {

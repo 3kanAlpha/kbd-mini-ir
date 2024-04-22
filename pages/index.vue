@@ -19,30 +19,24 @@
         3. 各大会のページからスコアを登録する。
       </p>
     </div>
-    <div v-if="isLoggedIn" class="my-4 text-center">
+    <div v-if="isLoggedIn" class="mb-6 text-center">
       <v-btn to="/comps/new" color="blue" prepend-icon="mdi-calendar-edit">大会を作成する</v-btn>
     </div>
     <div>
-      <v-data-table :items="comps" :headers="headers" item-key="name" v-model:sort-by="sortBy" :loading="tableLoading">
-        <template v-slot:item="{ item }">
-          <tr>
-            <td data-label="Name">
-              <NuxtLink :to="'comps/' + item.id">{{ item.name }}</NuxtLink>
-            </td>
-            <td data-label="Game Title">{{ item.game_title }}</td>
-            <td data-label="Song Title">{{ item.song_title }}</td>
-            <td data-label="Difficulty">{{ item.difficulty }}</td>
-            <td data-label="Open Until">
-              <div :class="{'text-grey-lighten-1': !isCompOpen(item.open_until)}">
-                {{ formatTimestamp(item.open_until) }}
-              </div>
-            </td>
-          </tr>
-        </template>
-        <template v-slot:loading>
-          <v-skeleton-loader type="table-row@1"></v-skeleton-loader>
-        </template>
-      </v-data-table>
+      <v-card flat>
+        <v-tabs v-model="tab" align-tabs="center" color="deep-purple-accent-3">
+          <v-tab value="open">開催中</v-tab>
+          <v-tab value="closed">終了済み</v-tab>
+        </v-tabs>
+        <v-window v-model="tab">
+          <v-window-item value="open">
+            <CompTable table-title="開催中の大会" />
+          </v-window-item>
+          <v-window-item value="closed">
+            <CompTable show-closed table-title="終了済みの大会" />
+          </v-window-item>
+        </v-window>
+      </v-card>
     </div>
   </v-container>
 </template>
@@ -52,25 +46,10 @@ import { createClient } from '@supabase/supabase-js'
 import SvgGitHub from '~/components/svg/SvgGitHub.vue';
 const runtimeConfig = useRuntimeConfig()
 const supabase = createClient('https://zczqyrsjbntkitypaaww.supabase.co', runtimeConfig.public.anonKey)
-const comps = ref([])
-const headers = [
-  { title: 'Name', value: 'name' },
-  { title: 'Game Title', value: 'game_title' },
-  { title: 'Song Title', value: 'song_title' },
-  { title: 'Difficulty', value: 'difficulty' },
-  { title: 'Open Until', value: 'open_until'},
-]
-const sortBy = [{ key: 'id', order: 'desc' }] // 新しい大会が上に来るように
 
 const isLoggedIn = ref(false)
 
-const tableLoading = ref(true)
-
-async function getComps() {
-  const { data } = await supabase.from('tournaments').select()
-  comps.value = data
-  tableLoading.value = false
-}
+const tab = ref(null)
 
 /** ユーザーが既にログイン済みかどうかを検証する */
 async function setLoggedIn() {
@@ -79,7 +58,6 @@ async function setLoggedIn() {
 }
 
 onMounted(() => {
-  getComps()
   setLoggedIn()
 })
 </script>

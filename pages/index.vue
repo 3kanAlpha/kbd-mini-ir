@@ -23,7 +23,7 @@
       <v-btn to="/comps/new" color="blue" prepend-icon="mdi-calendar-edit">大会を作成する</v-btn>
     </div>
     <div>
-      <v-card>
+      <v-card flat>
         <v-tabs v-model="tab" align-tabs="center" color="deep-purple-accent-3">
           <v-tab value="open">開催中</v-tab>
           <v-tab value="closed">終了済み</v-tab>

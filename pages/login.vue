@@ -20,7 +20,7 @@ const supabase = createClient('https://zczqyrsjbntkitypaaww.supabase.co', runtim
 
 /** 認証後のリダイレクト先を返す */
 function getRedirectURL() {
-  return `${window.location.origin}/`
+  return runtimeConfig.public.siteURL
 }
 
 async function signInWithDiscord() {

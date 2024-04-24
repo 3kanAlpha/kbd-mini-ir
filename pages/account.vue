@@ -1,7 +1,7 @@
 <template>
   <v-container fluid>
     <div class="text-center">
-      <div class="text-h3 ma-6">アカウント情報</div>
+      <div class="text-h3 ma-6">アカウント設定</div>
       <div>
         <v-alert
           v-model="updateAlert"
@@ -13,35 +13,29 @@
           アカウント情報の更新に成功しました。
         </v-alert>
       </div>
-      <div class="text-body-1 ma-2 mb-6">ランキングに表示される名前を変更できます。</div>
+      <div class="text-body-1 ma-2 mb-6">プロフィールを編集できます。</div>
       <div class="ma-2">
         <v-sheet class="pa-2">
           <v-form @submit.prevent="updateProfile" ref="form">
             <v-text-field
               v-model="userName"
-              label="Nickname"
+              label="Player Name"
+              hint="ランキング上で表示される名前です。"
               :rules="nameRules"
               :counter="20"
             ></v-text-field>
 
             <v-btn
-              class="mt-2"
-              text="Update Profile"
+              class="mt-2 font-weight-bold"
+              text="プロフィールを更新する"
               type="submit"
-              color="blue"
+              color="pink-accent-2"
+              size="large"
+              prepend-icon="mdi-update"
               block
             ></v-btn>
           </v-form>
         </v-sheet>
-      </div>
-      <div class="mt-4">
-        <v-container>
-          <v-row>
-            <v-col>
-              <v-btn prepend-icon="mdi-logout" color="red" size="large" @click="signOut">Logout</v-btn>
-            </v-col>
-          </v-row>
-        </v-container>
       </div>
     </div>
   </v-container>
@@ -67,11 +61,6 @@ const nameRules = [
   },
   (value: string) => validateLength(value, 20)
 ]
-
-async function signOut() {
-  const { error } = await supabase.auth.signOut()
-  await navigateTo('/')
-}
 
 async function updateProfile() {
   if (form.value == null) {

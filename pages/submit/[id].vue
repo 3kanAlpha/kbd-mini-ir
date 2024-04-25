@@ -69,6 +69,7 @@
                 ></v-file-input>
                 <v-img
                   v-if="previewSrc.length > 0"
+                  id="preview-image"
                   :src="previewSrc"
                   :width="300"
                   height="auto"
@@ -439,11 +440,24 @@ onMounted(() => {
   })
 })
 
+onUnmounted(() => {
+  if (previewSrc.value.length > 0) {
+    URL.revokeObjectURL(previewSrc.value)
+  }
+})
+
 watch(imageFiles, (newFiles) => {
+  const oldSrc = previewSrc.value
+
   if (newFiles.length) {
     previewSrc.value = URL.createObjectURL(newFiles[0])
   } else {
     previewSrc.value = ""
+  }
+
+  // 古いblobを解放する
+  if (oldSrc.length > 0) {
+    URL.revokeObjectURL(oldSrc)
   }
 })
 

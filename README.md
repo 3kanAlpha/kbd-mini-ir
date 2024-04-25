@@ -11,6 +11,12 @@
 - Supabase
 - Cloudflare R2
 
+## クレジット
+- 開発
+  - まぐ
+- ロゴ作成
+  - さち
+
 # Nuxt 3 Minimal Starter
 
 Look at the [Nuxt 3 documentation](https://nuxt.com/docs/getting-started/introduction) to learn more.

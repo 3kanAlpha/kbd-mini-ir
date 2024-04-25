@@ -1,7 +1,9 @@
 <template>
   <v-container fluid>
     <div id="site-description" class="mx-auto">
-      <div class="text-h3 my-6 caveat-bold">IRmania</div>
+      <div class="text-h3 my-6">
+        <NuxtImg format="webp" src="/logo.png" width="300px" :placeholder="[300, 60, 75, 0]" />
+      </div>
       <div class="mt-4 mb-6">
         <p class="text-body-1 mb-2">色々な音ゲーでカジュアルに大会を開くためのプラットフォーム</p>
         <v-btn size="small" rounded="lg" variant="outlined" :prepend-icon="SvgGitHub" href="https://github.com/3kanAlpha/kbd-mini-ir">GitHub</v-btn>
@@ -65,15 +67,6 @@ onMounted(() => {
 </script>
 
 <style>
-@import url('https://fonts.googleapis.com/css2?family=Caveat:wght@400..700&display=swap');
-
-.caveat-bold {
-  font-family: "Caveat", cursive;
-  font-optical-sizing: auto;
-  font-weight: 700;
-  font-style: normal;
-}
-
 #site-description {
   max-width: 700px;
 }

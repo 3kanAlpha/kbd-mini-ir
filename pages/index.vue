@@ -2,7 +2,7 @@
   <v-container fluid>
     <div id="site-description" class="mx-auto">
       <div class="text-h3 my-6">
-        <NuxtImg format="webp" src="/logo.png" width="300px" :placeholder="[300, 60, 75, 0]" />
+        <img src="/logo.png" width="300px" />
       </div>
       <div class="mt-4 mb-6">
         <p class="text-body-1 mb-2">色々な音ゲーでカジュアルに大会を開くためのプラットフォーム</p>

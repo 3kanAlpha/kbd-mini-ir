@@ -461,6 +461,10 @@ watch(imageFiles, (newFiles) => {
   }
 })
 
+definePageMeta({
+  middleware: ['auth'],
+})
+
 type Comp = {
   id: number
   created_at: string

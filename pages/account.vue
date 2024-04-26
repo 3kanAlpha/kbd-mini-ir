@@ -91,4 +91,8 @@ async function updateProfile() {
     updateAlert.value = true
   }
 }
+
+definePageMeta({
+  middleware: ['auth'],
+})
 </script>

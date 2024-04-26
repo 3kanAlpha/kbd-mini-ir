@@ -6,14 +6,6 @@
     </div>
     <div>
       <v-alert
-        type="error"
-        title="ログインしていません"
-        v-model="hasNotLoggedIn"
-        class="my-6"
-      >
-        大会を作成するにはログインしてください。
-      </v-alert>
-      <v-alert
         type="success"
         title="大会を作成しました"
         v-model="compCreated"
@@ -23,8 +15,8 @@
         大会が正常に作成されました。
       </v-alert>
     </div>
-    <div class="my-2" v-if="!hasNotLoggedIn">
-      <v-sheet class="pa-2" style="min-width: 500px;">
+    <div class="my-2">
+      <v-sheet class="pa-2 comp-form">
         <v-form @submit.prevent="createNewComp" ref="form">
           <v-text-field
             v-model="compName"
@@ -147,9 +139,6 @@ const isPrivate = ref(false)
 const passwd = ref("")
 const showPasswd = ref(false)
 
-const userInfo = ref(null)
-
-const hasNotLoggedIn = ref(false)
 const compCreated = ref(false)
 const badRequest = ref(false)
 
@@ -209,17 +198,7 @@ const dateRules = [
 
 async function getUser() {
   const { data: { user } } = await supabase.auth.getUser()
-  userInfo.value = user
   return user
-}
-
-/** ログインしているか検証する */
-async function verifyLoggedIn() {
-  const user = await getUser()
-  if (user == null) {
-    hasNotLoggedIn.value = true
-    return
-  }
 }
 
 /** 大会を新規作成する */
@@ -238,8 +217,9 @@ async function createNewComp() {
     return
   }
 
+  const user = await getUser()
   // ログインチェック
-  if (userInfo.value == null) {
+  if (user == null) {
     await nagivateTo('/login')
     return
   }
@@ -258,7 +238,7 @@ async function createNewComp() {
       difficulty: difficulty.value,
       open_until: openUntilTimestamp,
       passwd: digest,
-      created_by: userInfo.value.id,
+      created_by: user.id,
       asc_order: useAscOrder.value,
     })
   
@@ -275,7 +255,15 @@ function validateTimestamp(timestamp) {
   return d.toString() !== "Invalid Date" && d > currentDate
 }
 
-onMounted(() => {
-  verifyLoggedIn()
+definePageMeta({
+  middleware: ['auth'],
 })
 </script>
+
+<style>
+@media screen and (min-width: 600px) {
+  .comp-form {
+    min-width: 500px;
+  }
+}
+</style>

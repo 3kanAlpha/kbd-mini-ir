@@ -36,7 +36,7 @@
                   <div v-else>{{ item.rank }}</div>
                 </div>
               </td>
-              <td data-label="Player Name">
+              <td class="table-td-player-name" data-label="Player Name">
                 <span :class="{ 'text-pink-accent-2': userInfo && userInfo.id === item.user_uid }">{{ item.users.nickname }}</span>
               </td>
               <td data-label="Score">{{ item.score }}</td>
@@ -57,7 +57,7 @@
                   </div>
                 </div>
               </td>
-              <td data-label="Comment">{{ item.comment }}</td>
+              <td class="table-td-comment" data-label="Comment">{{ item.comment }}</td>
             </tr>
           </template>
           <template v-slot:loading>
@@ -219,3 +219,17 @@ onMounted(() => {
   })
 })
 </script>
+
+<style>
+@media screen and (min-width: 960px) {
+  .table-td-player-name {
+    width: 120px;
+    max-width: 160px;
+  }
+
+  .table-td-comment {
+    width: 250px;
+    max-width: 300px;
+  }
+}
+</style>

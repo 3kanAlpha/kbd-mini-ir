@@ -12,13 +12,13 @@
         <p class="text-body-2" v-if="!isLoggedIn">
           スコア登録のやり方:<br />
           1. <NuxtLink to="/login">ログインページ</NuxtLink>からログインする。<br />
-          2. アカウント情報ページから名前を登録する。<br />
+          2. アカウント設定ページから名前を登録する。<br />
           3. 各大会のページからスコアを登録する。
         </p>
         <p class="text-body-2" v-else>
           スコア登録のやり方:<br />
           1. ログインページからログインする。<br />
-          2. <NuxtLink to="/account">アカウント情報ページ</NuxtLink>から名前を登録する。<br />
+          2. <NuxtLink to="/account">アカウント設定ページ</NuxtLink>から名前を登録する。<br />
           3. 各大会のページからスコアを登録する。
         </p>
       </div>

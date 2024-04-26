@@ -20,7 +20,25 @@
       </v-card-title>
 
       <v-divider></v-divider>
-      <v-data-table :items="comps" :headers="headers" item-key="name" v-model:sort-by="sortBy" :loading="tableLoading" :search="searchText">
+      <v-data-table v-if="type === 'upcoming'" :items="comps" :headers="upcomingHeaders" item-key="name" v-model:sort-by="sortBy" :loading="tableLoading" :search="searchText">
+        <template v-slot:item="{ item }">
+          <tr>
+            <td data-label="Name">
+              <NuxtLink :to="'/comps/' + item.id">{{ item.name }}</NuxtLink>
+            </td>
+            <td data-label="Game Title">{{ item.game_title }}</td>
+            <td data-label="Song Title">{{ item.song_title }}</td>
+            <td data-label="Difficulty">{{ item.difficulty }}</td>
+            <td data-label="Duration">
+              {{ formatTimestamp(item.open_since) }} - {{ formatTimestamp(item.open_until) }}
+            </td>
+          </tr>
+        </template>
+        <template v-slot:loading>
+          <v-skeleton-loader type="table-row@1"></v-skeleton-loader>
+        </template>
+      </v-data-table>
+      <v-data-table v-else :items="comps" :headers="headers" item-key="name" v-model:sort-by="sortBy" :loading="tableLoading" :search="searchText">
         <template v-slot:item="{ item }">
           <tr>
             <td data-label="Name">
@@ -30,7 +48,7 @@
             <td data-label="Song Title">{{ item.song_title }}</td>
             <td data-label="Difficulty">{{ item.difficulty }}</td>
             <td data-label="Open Until">
-              <div :class="{'text-grey-lighten-1': !isCompOpen(item.open_until)}">
+              <div :class="{'text-grey-lighten-1': !isCompOpen(item.open_since, item.open_until)}">
                 {{ formatTimestamp(item.open_until) }}
               </div>
             </td>
@@ -48,8 +66,8 @@
 import { createClient } from '@supabase/supabase-js'
 
 const props = defineProps({
-  showClosed: Boolean,
   tableTitle: String,
+  type: String,
 })
 
 const runtimeConfig = useRuntimeConfig()
@@ -62,6 +80,13 @@ const headers = [
   { title: 'Difficulty', value: 'difficulty' },
   { title: 'Open Until', value: 'open_until', filterable: false },
 ]
+const upcomingHeaders = [
+  { title: 'Name', value: 'name' },
+  { title: 'Game Title', value: 'game_title' },
+  { title: 'Song Title', value: 'song_title' },
+  { title: 'Difficulty', value: 'difficulty' },
+  { title: 'Duration', filterable: false },
+]
 const sortBy = [{ key: 'id', order: 'desc' }] // 新しい大会が上に来るように
 
 const searchText = ref('')
@@ -71,31 +96,20 @@ const tableLoading = ref(true)
 const compTableName = 'tournaments'
 
 async function getComps() {
-  const data = props.showClosed ? await getClosedComps() : await getOpenComps()
+  const currentDate = new Date().toISOString()
+  let query = supabase.from(compTableName).select()
+
+  if (props.type === 'upcoming') {
+    query = query.gt('open_since', currentDate)
+  } else if (props.type === 'closed') {
+    query = query.lt('open_until', currentDate)
+  } else {
+    query = query.gt('open_until', currentDate).lte('open_since', currentDate)
+  }
+
+  const { data } = await query
   comps.value = data
   tableLoading.value = false
-}
-
-/** 開催中の大会を取得する */
-async function getOpenComps() {
-  const currentDate = new Date().toISOString()
-
-  const { data } = await supabase
-    .from(compTableName)
-    .select()
-    .gte('open_until', currentDate)
-  return data
-}
-
-/** 終了済みの大会を取得する */
-async function getClosedComps() {
-  const currentDate = new Date().toISOString()
-
-  const { data } = await supabase
-    .from(compTableName)
-    .select()
-    .lt('open_until', currentDate)
-  return data
 }
 
 onMounted(() => {

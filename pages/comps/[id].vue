@@ -3,14 +3,18 @@
     <div v-if="!isLoading" class="text-center">
       <div class="text-h3 my-4">{{ compInfo.name }}</div>
       <div class="text-h6 ma-1">{{ compInfo.song_title }} [{{ compInfo.difficulty }}]</div>
-      <div class="text-subtitle-2 ma-1">スコア登録期間: {{ formatTimestamp(compInfo.open_until) }} まで <span v-if="!isCompOpen(compInfo.open_until)">(開催終了)</span></div>
+      <div class="text-subtitle-2 ma-1">
+        スコア登録期間: {{ formatTimestamp(compInfo.open_since) }} - {{ formatTimestamp(compInfo.open_until) }} 
+        <span v-if="isCompClosed(compInfo.open_until)">(開催終了)</span>
+        <span v-else-if="isCompUpcoming(compInfo.open_since)">(開催予定)</span>
+      </div>
 
       <div class="text-body-1 ma-4" style="white-space: pre-wrap;">{{ compInfo.desc }}</div>
 
-      <div v-if="(isLoggedIn && isCompOpen(compInfo.open_until)) || canDelete" class="my-4">
+      <div v-if="(isLoggedIn && isCompOpen(compInfo.open_since, compInfo.open_until)) || canDelete" class="my-4">
         <div style="max-width: 500px;" class="mx-auto">
           <v-row>
-            <v-col v-if="isCompOpen(compInfo.open_until)">
+            <v-col v-if="isCompOpen(compInfo.open_since, compInfo.open_until)">
               <v-btn size="large" :to="submissionPageUrl" color="blue" prepend-icon="mdi-pencil-box">スコア提出</v-btn>
             </v-col>
             <v-col v-if="canDelete">

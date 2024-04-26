@@ -3,7 +3,9 @@
     <div v-if="!isLoading && compInfo != null" class="text-center">
       <div class="text-h3 my-4">{{ compInfo.name }}</div>
       <div class="text-h6 ma-1">{{ compInfo.song_title }} [{{ compInfo.difficulty }}]</div>
-      <div class="text-subtitle-2 ma-1">スコア登録期間: {{ formatTimestamp(compInfo.open_until) }} まで</div>
+      <div class="text-subtitle-2 ma-1">
+        スコア登録期間: {{ formatTimestamp(compInfo.open_since) }} - {{ formatTimestamp(compInfo.open_until) }}
+      </div>
 
       <div>
         <v-alert
@@ -275,7 +277,7 @@ async function getCompInfo() {
   const { data } = await supabase.from('tournaments').select('*').eq('id', route.params.id).limit(1).single()
   compInfo.value = data
 
-  if (!isCompOpen(data.open_until)) {
+  if (!isCompOpen(data.open_since, data.open_until)) {
     compNotOpen.value = true
   }
 
@@ -462,7 +464,7 @@ watch(imageFiles, (newFiles) => {
 })
 
 definePageMeta({
-  middleware: ['auth'],
+  middleware: ['auth', 'can-submit'],
 })
 
 type Comp = {
@@ -476,5 +478,8 @@ type Comp = {
   open_until: string
   passwd: string
   created_by: string
+  asc_order: boolean
+  score_visible: boolean
+  open_since: string
 }
 </script>

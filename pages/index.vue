@@ -30,14 +30,18 @@
       <v-card flat>
         <v-tabs v-model="tab" align-tabs="center" color="deep-purple-accent-3">
           <v-tab value="open">開催中</v-tab>
+          <v-tab value="upcoming">開催予定</v-tab>
           <v-tab value="closed">終了済み</v-tab>
         </v-tabs>
         <v-window v-model="tab">
           <v-window-item value="open">
             <CompTable table-title="開催中の大会" />
           </v-window-item>
+          <v-window-item value="upcoming">
+            <CompTable type="upcoming" table-title="開催予定の大会" />
+          </v-window-item>
           <v-window-item value="closed">
-            <CompTable show-closed table-title="終了済みの大会" />
+            <CompTable type="closed" table-title="終了済みの大会" />
           </v-window-item>
         </v-window>
       </v-card>

@@ -1,4 +1,4 @@
-/** 現在時刻が大会のスコア登録期限より前かどうか検証する */
-export default function (timestamp: string) {
-  return new Date(timestamp) > new Date()
+/** 大会の開催期間に現在時刻が含まれるかどうか判定する */
+export default function (startTimestamp: string, endTimestamp: string): boolean {
+  return new Date(startTimestamp) <= new Date() && new Date(endTimestamp) > new Date()
 }

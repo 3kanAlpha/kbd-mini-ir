@@ -23,11 +23,11 @@
       <v-data-table v-if="type === 'upcoming'" :items="comps" :headers="upcomingHeaders" item-key="name" v-model:sort-by="sortBy" :loading="tableLoading" :search="searchText">
         <template v-slot:item="{ item }">
           <tr>
-            <td data-label="Name">
+            <td class="table-td-name" data-label="Name">
               <NuxtLink :to="'/comps/' + item.id">{{ item.name }}</NuxtLink>
             </td>
-            <td data-label="Game Title">{{ item.game_title }}</td>
-            <td data-label="Song Title">{{ item.song_title }}</td>
+            <td class="table-td-game-title" data-label="Game Title">{{ item.game_title }}</td>
+            <td class="table-td-song-title" data-label="Song Title">{{ item.song_title }}</td>
             <td data-label="Difficulty">{{ item.difficulty }}</td>
             <td data-label="Duration">
               {{ formatTimestamp(item.open_since) }} - {{ formatTimestamp(item.open_until) }}
@@ -41,11 +41,11 @@
       <v-data-table v-else :items="comps" :headers="headers" item-key="name" v-model:sort-by="sortBy" :loading="tableLoading" :search="searchText">
         <template v-slot:item="{ item }">
           <tr>
-            <td data-label="Name">
+            <td class="table-td-name" data-label="Name">
               <NuxtLink :to="'/comps/' + item.id">{{ item.name }}</NuxtLink>
             </td>
-            <td data-label="Game Title">{{ item.game_title }}</td>
-            <td data-label="Song Title">{{ item.song_title }}</td>
+            <td class="table-td-game-title" data-label="Game Title">{{ item.game_title }}</td>
+            <td class="table-td-song-title" data-label="Song Title">{{ item.song_title }}</td>
             <td data-label="Difficulty">{{ item.difficulty }}</td>
             <td data-label="Open Until">
               <div :class="{'text-grey-lighten-1': !isCompOpen(item.open_since, item.open_until)}">
@@ -118,9 +118,25 @@ onMounted(() => {
 </script>
 
 <style>
+.v-data-table td {
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
 @media screen and (min-width: 960px) {
   .comp-table {
     min-width: 780px;
+  }
+
+  .table-td-name {
+    width: 200px;
+    max-width: 220px;
+  }
+
+  .table-td-song-title {
+    width: 200px;
+    max-width: 250px;
   }
 }
 </style>

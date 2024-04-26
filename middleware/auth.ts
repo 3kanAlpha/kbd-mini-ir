@@ -12,6 +12,9 @@ export default defineNuxtRouteMiddleware(async (to, from) => {
     return true
   }
 
+  // ログインチェックはクライアントで行う必要があるのでスキップ
+  if (import.meta.server) return
+
   if (!await isLoggedIn()) {
     return navigateTo('/login')
   }

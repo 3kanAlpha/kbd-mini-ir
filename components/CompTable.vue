@@ -118,12 +118,6 @@ onMounted(() => {
 </script>
 
 <style>
-.v-data-table td {
-  white-space: nowrap;
-  overflow: hidden;
-  text-overflow: ellipsis;
-}
-
 @media screen and (min-width: 960px) {
   .comp-table {
     min-width: 780px;

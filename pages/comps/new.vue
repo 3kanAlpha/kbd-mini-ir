@@ -16,8 +16,9 @@
       </v-alert>
     </div>
     <div class="my-2">
-      <v-sheet class="pa-2 comp-form">
+      <v-sheet class="pa-2 comp-form" border rounded>
         <v-form @submit.prevent="createNewComp" ref="form">
+          <h2 class="ma-2">基本設定</h2>
           <v-text-field
             v-model="compName"
             label="Name"
@@ -72,24 +73,57 @@
             </v-col>
           </v-row>
 
-          <v-switch label="スコアのソートを昇順にする" v-model="useAscOrder" color="primary" class="mb-n2"></v-switch>
+          <v-divider class="mb-4"></v-divider>
+          <v-expansion-panels multiple>
+            <v-expansion-panel>
+              <v-expansion-panel-title>
+                <v-icon icon="mdi-tune-variant" class="mr-2"></v-icon>オプション
+              </v-expansion-panel-title>
+              <v-expansion-panel-text>
+                <v-switch label="大会の開始日時を指定する" v-model="manualOpenSince" color="primary" class="mb-n6"></v-switch>
+                <v-row>
+                  <v-col>
+                    <v-text-field
+                      v-model="openSinceDate"
+                      label="Open On"
+                      hint="大会のスコア登録開始日時"
+                      :rules="startDateRules"
+                      type="date"
+                      :disabled="!manualOpenSince"
+                    ></v-text-field>
+                  </v-col>
+                  <v-col>
+                    <v-text-field
+                      v-model="openSinceTime"
+                      label="Time"
+                      suffix="JST"
+                      type="time"
+                      :disabled="!manualOpenSince"
+                    ></v-text-field>
+                  </v-col>
+                </v-row>
 
-          <v-switch label="プライベート大会にする" v-model="isPrivate" color="primary"></v-switch>
-          <v-text-field
-            v-model="passwd"
-            label="Password"
-            hint="スコア提出時に必要となります。"
-            :rules="passRules"
-            :append-icon="showPasswd ? 'mdi-eye' : 'mdi-eye-off'"
-            :type="showPasswd ? 'text' : 'password'"
-            @click:append="showPasswd = !showPasswd"
-            prepend-icon="mdi-key"
-            counter
-            v-show="isPrivate"
-          ></v-text-field>
+                <v-switch label="スコアのソートを昇順にする" v-model="useAscOrder" color="primary" class="mb-n2"></v-switch>
+
+                <v-switch label="プライベート大会にする" v-model="isPrivate" color="primary"></v-switch>
+                <v-text-field
+                  v-model="passwd"
+                  label="Password"
+                  hint="スコア提出時に必要となります。"
+                  :rules="passRules"
+                  :append-icon="showPasswd ? 'mdi-eye' : 'mdi-eye-off'"
+                  :type="showPasswd ? 'text' : 'password'"
+                  @click:append="showPasswd = !showPasswd"
+                  prepend-icon="mdi-key"
+                  counter
+                  v-show="isPrivate"
+                ></v-text-field>
+              </v-expansion-panel-text>
+            </v-expansion-panel>
+          </v-expansion-panels>
 
           <v-btn
-            class="mt-2 font-weight-bold"
+            class="mt-4 font-weight-bold"
             text="大会を作成する"
             type="submit"
             color="red"
@@ -134,6 +168,9 @@ const songTitle = ref("")
 const difficulty = ref("")
 const openUntilDate = ref()
 const openUntilTime = ref("00:00:00")
+const manualOpenSince = ref(false)
+const openSinceDate = ref(null)
+const openSinceTime = ref("00:00:00")
 const useAscOrder = ref(false)
 const isPrivate = ref(false)
 const passwd = ref("")
@@ -196,6 +233,32 @@ const dateRules = [
   }
 ]
 
+const startDateRules = [
+  (value) => {
+    if (!manualOpenSince.value) return true
+
+    // 有効な日付であることを検証する
+    const timestamp = value + "T" + openSinceTime.value + "+09:00"
+    const d = new Date(timestamp)
+
+    if (!validateDateAndTime(value, openSinceTime.value)) {
+      return '有効な日付を入力してください。'
+    }
+
+    const currentDate = new Date()
+
+    if (d < currentDate) {
+      return '過去の日付は指定できません。'
+    }
+
+    if (validateDateAndTime(openUntilDate.value, openUntilTime.value) && d >= new Date(openUntilDate.value + "T" + openUntilTime.value + "+09:00")) {
+      return '開始日時は終了日時より前に設定してください。'
+    }
+
+    return true
+  },
+]
+
 async function getUser() {
   const { data: { user } } = await supabase.auth.getUser()
   return user
@@ -228,19 +291,25 @@ async function createNewComp() {
 
   let digest = ''
   if (isPrivate.value) digest = await calcHash(passwd.value)
+
+  const body = {
+    name: compName.value,
+    desc: desc.value,
+    game_title: gameTitle.value,
+    song_title: songTitle.value,
+    difficulty: difficulty.value,
+    open_until: openUntilTimestamp,
+    passwd: digest,
+    created_by: user.id,
+    asc_order: useAscOrder.value,
+  }
+  if (manualOpenSince.value) {
+    const startTimestamp = openSinceDate.value + "T" + openSinceTime.value + "+09:00"
+    body.open_since = startTimestamp
+  }
   
   const { error } = await supabase.from('tournaments')
-    .insert({
-      name: compName.value,
-      desc: desc.value,
-      game_title: gameTitle.value,
-      song_title: songTitle.value,
-      difficulty: difficulty.value,
-      open_until: openUntilTimestamp,
-      passwd: digest,
-      created_by: user.id,
-      asc_order: useAscOrder.value,
-    })
+    .insert(body)
   
   if (error == null) {
     compCreated.value = true

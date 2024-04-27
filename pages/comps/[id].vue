@@ -9,7 +9,27 @@
         <span v-else-if="isCompUpcoming(compInfo.open_since)">(開催予定)</span>
       </div>
 
-      <div class="text-body-1 ma-4" style="white-space: pre-wrap;">{{ compInfo.desc }}</div>
+      <v-row v-if="isPrivate || hiddenLeaderboard" style="max-width: 300px;" class="mx-auto mb-4">
+        <v-col v-if="isPrivate">
+          <v-chip color="orange" size="small">
+            <v-icon icon="mdi-key-variant" start></v-icon>
+            プライベート
+          </v-chip>
+        </v-col>
+        <v-col v-if="hiddenLeaderboard">
+          <v-tooltip location="bottom">
+            <template v-slot:activator="{ props }">
+              <v-chip v-bind="props" color="deep-purple-accent-2" size="small">
+                <v-icon icon="mdi-eye-off" start></v-icon>
+                他人のスコア非表示
+              </v-chip>
+            </template>
+            <span>大会が終了するまで他プレイヤーのスコアが非表示になります</span>
+          </v-tooltip>
+        </v-col>
+      </v-row>
+
+      <div class="text-body-1 my-4 mb-6" style="white-space: pre-wrap;">{{ compInfo.desc }}</div>
 
       <div v-if="(isLoggedIn && isCompOpen(compInfo.open_since, compInfo.open_until)) || canDelete" class="my-4">
         <div style="max-width: 500px;" class="mx-auto">
@@ -30,10 +50,13 @@
             <tr>
               <td data-label="Rank">
                 <div :class="{ 'text-center': !isPortraitMobile }">
-                  <div v-if="item.rank == 1"><v-icon icon="mdi-crown" color="amber"></v-icon></div>
-                  <div v-else-if="item.rank == 2"><v-icon icon="mdi-crown" color="blue-grey-lighten-2"></v-icon></div>
-                  <div v-else-if="item.rank == 3"><v-icon icon="mdi-crown" color="brown"></v-icon></div>
-                  <div v-else>{{ item.rank }}</div>
+                  <div v-if="hiddenLeaderboard">?</div>
+                  <div v-else>
+                    <div v-if="item.rank == 1"><v-icon icon="mdi-crown" color="amber"></v-icon></div>
+                    <div v-else-if="item.rank == 2"><v-icon icon="mdi-crown" color="blue-grey-lighten-2"></v-icon></div>
+                    <div v-else-if="item.rank == 3"><v-icon icon="mdi-crown" color="brown"></v-icon></div>
+                    <div v-else>{{ item.rank }}</div>
+                  </div>
                 </div>
               </td>
               <td class="table-td-player-name" data-label="Player Name">
@@ -124,6 +147,8 @@ const headers = [
   { title: 'Comment', value: 'comment' },
 ]
 const useAscOrder = ref(false)
+const hiddenLeaderboard = ref(false)
+const isPrivate = ref(false)
 /** スコア降順、スコアが同じ場合提出が速い方が順位を上にする */
 const sortBy = [{ key: 'score', order: 'desc' }, { key: 'updated_at', order: 'asc' }]
 
@@ -144,6 +169,10 @@ async function getCompInfo() {
   const { data } = await supabase.from('tournaments').select('*').eq('id', route.params.id).limit(1).single()
   compInfo.value = data
 
+  if (data.passwd.length > 0) {
+    isPrivate.value = true
+  }
+
   // ユーザーが作成した大会かどうかを確認
   const { data: { user } } = await supabase.auth.getUser()
   if (user != null && user.id === data.created_by) {
@@ -154,7 +183,7 @@ async function getCompInfo() {
 async function getScoreInfo() {
   await getCompSettings()
 
-  const { data } = await supabase
+  let query = supabase
     .from('score')
     .select(`
       user_uid,
@@ -164,16 +193,30 @@ async function getScoreInfo() {
       comment,
       users (nickname)`)
     .eq('tournament_id', route.params.id)
-    .order('score', { ascending: useAscOrder.value })
-    .order('updated_at', { ascending: true })
-  appendRank(data)
-  scoreInfo.value = data
+
+  if (hiddenLeaderboard.value) {
+    const { data: { user } } = await supabase.auth.getUser()
+    if (user != null) {
+      query = query.eq('user_uid', user.id)
+    } else {
+      query = query.eq('user_uid', 'null')
+    }
+  } else {
+    query = query.order('score', { ascending: useAscOrder.value }).order('updated_at', { ascending: true })
+  }
+
+  const { data: scoreData } = await query
+  if (scoreData) {
+    appendRank(scoreData)
+    scoreInfo.value = scoreData
+  }
   scoreLoading.value = false
 }
 
 async function getCompSettings() {
-  const { data } = await supabase.from('tournaments').select('asc_order').eq('id', route.params.id).limit(1).single()
+  const { data } = await supabase.from('tournaments').select('asc_order,score_visible,open_until').eq('id', route.params.id).limit(1).single()
   useAscOrder.value = data.asc_order
+  hiddenLeaderboard.value = !data.score_visible && !isCompClosed(data.open_until)
 }
 
 /** ユーザーが既にログイン済みかどうかを検証する */

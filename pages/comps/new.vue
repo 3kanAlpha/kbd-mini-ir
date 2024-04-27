@@ -105,6 +105,8 @@
 
                 <v-switch label="スコアのソートを昇順にする" v-model="useAscOrder" color="primary" class="mb-n2"></v-switch>
 
+                <v-switch label="他プレイヤーのスコアを非表示にする" v-model="hiddenLeaderboard" color="primary" class="mb-n2"></v-switch>
+
                 <v-switch label="プライベート大会にする" v-model="isPrivate" color="primary"></v-switch>
                 <v-text-field
                   v-model="passwd"
@@ -172,6 +174,7 @@ const manualOpenSince = ref(false)
 const openSinceDate = ref(null)
 const openSinceTime = ref("00:00:00")
 const useAscOrder = ref(false)
+const hiddenLeaderboard = ref(false)
 const isPrivate = ref(false)
 const passwd = ref("")
 const showPasswd = ref(false)
@@ -302,6 +305,7 @@ async function createNewComp() {
     passwd: digest,
     created_by: user.id,
     asc_order: useAscOrder.value,
+    score_visible: !hiddenLeaderboard.value,
   }
   if (manualOpenSince.value) {
     const startTimestamp = openSinceDate.value + "T" + openSinceTime.value + "+09:00"

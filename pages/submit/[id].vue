@@ -46,7 +46,7 @@
         </div>
 
         <div class="my-2 mb-6 mx-auto" style="max-width: 500px;">
-          <v-sheet class="pa-2">
+          <v-sheet class="pa-2 text-left">
             <v-form @submit.prevent="updateScore" ref="form">
               <v-text-field
                 v-model="score"
@@ -110,8 +110,26 @@
                 </v-col>
               </v-row>
 
+              <v-divider class="mb-4"></v-divider>
+              <v-expansion-panels>
+                <v-expansion-panel>
+                  <v-expansion-panel-title>
+                    <v-icon icon="mdi-alert-circle" class="mr-2"></v-icon>リザルト画像提出時の注意事項
+                  </v-expansion-panel-title>
+                  <v-expansion-panel-text>
+                    <p class="mb-2">
+                      提出された画像データは、運営上の都合で将来的に<span class="font-weight-bold">削除される可能性があります</span>。<br />
+                      あらかじめご了承ください。
+                    </p>
+                    <p>
+                      画像提出時のデータ圧縮機能が未実装であるため、もし余裕がある場合は手動で画像をリサイズしてから提出していただけると助かります。
+                    </p>
+                  </v-expansion-panel-text>
+                </v-expansion-panel>
+              </v-expansion-panels>
+
               <v-btn
-                class="mt-2 font-weight-bold"
+                class="mt-4 font-weight-bold"
                 text="スコアを提出する"
                 type="submit"
                 color="red"

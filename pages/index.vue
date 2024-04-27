@@ -17,7 +17,7 @@
         </p>
         <p class="text-body-2" v-else>
           スコア登録のやり方:<br />
-          1. ログインページからログインする。<br />
+          1. ログインページからログインする。<v-icon icon="mdi-check-circle" color="green" size="small"></v-icon><br />
           2. <NuxtLink to="/account">アカウント設定ページ</NuxtLink>から名前を登録する。<br />
           3. 各大会のページからスコアを登録する。
         </p>

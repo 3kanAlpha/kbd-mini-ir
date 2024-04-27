@@ -32,8 +32,11 @@ export default defineNuxtConfig({
   app: {
     head: {
       meta: [
-        { name: 'robots', content: 'noindex' }
-      ]
+        { name: 'robots', content: 'noindex' },
+      ],
+      link: [
+        { rel: 'icon', type: 'image/x-icon', href: '/favicon.ico' },
+      ],
     }
   },
 })

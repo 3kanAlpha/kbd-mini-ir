@@ -117,12 +117,9 @@
                     <v-icon icon="mdi-alert-circle" class="mr-2"></v-icon>リザルト画像提出時の注意事項
                   </v-expansion-panel-title>
                   <v-expansion-panel-text>
-                    <p class="mb-2">
+                    <p>
                       提出された画像データは、運営上の都合で将来的に<span class="font-weight-bold">削除される可能性があります</span>。<br />
                       あらかじめご了承ください。
-                    </p>
-                    <p>
-                      画像提出時のデータ圧縮機能が未実装であるため、もし余裕がある場合は手動で画像をリサイズしてから提出していただけると助かります。
                     </p>
                   </v-expansion-panel-text>
                 </v-expansion-panel>
@@ -337,6 +334,8 @@ async function updateScore() {
     return
   }
 
+  uploading.value = true
+
   if (isPrivate.value && !hasScore.value) {
     const digest = await calcHash(passwd.value)
     const actualDigest = compInfo.value.passwd
@@ -346,14 +345,12 @@ async function updateScore() {
     }
   }
 
-  uploading.value = true
-
   // 以前のリザルト画像を削除する
   await deleteOldImageIfExists()
 
   let iu = imageUrl.value
   if (!useExternalImage.value) {
-    iu = await uploadImage()
+    iu = await callImageUploader()
   }
 
   const parsedScore = parseFloat(score.value)
@@ -372,33 +369,6 @@ async function updateScore() {
     scoreUpdated.value = true
   }
   uploading.value = false
-}
-
-async function uploadImage() {
-  if (!compInfo.value || !userInfo.value || !imageFiles.value.length) {
-    return ""
-  }
-
-  const imgExt = getFileExt(imageFiles.value[0].name)
-  const shortUUID = shortenUUID(userInfo.value.id)
-  const randomStr = generateRandomString(8)
-  const fileKey = `comp-${compInfo.value.id}/${shortUUID}_${randomStr}.${imgExt}`
-
-  const command = new PutObjectCommand({
-    Bucket: bucketName,
-    Key: fileKey,
-    Body: imageFiles.value[0],
-    ContentType: imageFiles.value[0].type,
-  })
-
-  try {
-    const response = await s3.send(command);
-    return publicDomain + fileKey
-  } catch (err) {
-    console.error(err);
-  }
-
-  return ""
 }
 
 /** 古いリザルト画像をバケットから削除する */
@@ -431,6 +401,31 @@ async function deleteOldImageIfExists() {
       }
     }
   }
+}
+
+/** リザルト画像アップロードAPIを叩く */
+async function callImageUploader() {
+  if (!compInfo.value || !userInfo.value || !imageFiles.value.length) {
+    return ""
+  }
+
+  const { data, error } = await supabase.auth.getSession()
+  const params = { token: '' }
+  const jwt = data.session?.access_token
+  if (jwt) params.token = jwt
+  const query = new URLSearchParams(params)
+
+  const tempFormData = new FormData()
+  tempFormData.append('file', imageFiles.value[0])
+  tempFormData.append('uuid', userInfo.value.id)
+  tempFormData.append('compId', compInfo.value.id.toString())
+
+  const response = await $fetch(`/api/upload/image?${query}`, {
+    method: 'POST',
+    body: tempFormData,
+  })
+
+  return response
 }
 
 async function checkHasScore() {

@@ -123,7 +123,7 @@
       class="align-center justify-center"
       width="auto"
     >
-      <v-img style="max-height: 75%;" :width="1000" :src="previewImageUrl"></v-img>
+      <v-img class="mx-auto" style="max-height: 70%; max-width: 65%; width: 1000px;" :src="previewImageUrl"></v-img>
     </v-overlay>
   </v-container>
 </template>

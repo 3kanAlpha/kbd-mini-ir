@@ -67,7 +67,7 @@
                   :rules="imageFilesRules"
                   accept="image/*"
                   label="Result Image"
-                  show-size
+                  :show-size="1024"
                 ></v-file-input>
                 <v-img
                   v-if="previewSrc.length > 0"
@@ -183,7 +183,7 @@
 
 <script setup lang="ts">
 import { createClient } from '@supabase/supabase-js'
-import { S3Client, PutObjectCommand, DeleteObjectCommand } from '@aws-sdk/client-s3';
+import { S3Client, DeleteObjectCommand } from '@aws-sdk/client-s3';
 
 import type { User } from '@supabase/auth-js/src/lib/types'
 import type { VForm } from 'vuetify/components'
@@ -235,6 +235,9 @@ const hasScore = ref(false)
 /** スコア提出処理中にボタンを無効にするフラグ */
 const uploading = ref(false)
 
+const imageSizeLimitInMB = 5
+const imageUploaderEndpoint = runtimeConfig.public.imageUploaderDomain + '/api/image'
+
 const compPageURL = `/comps/${route.params.id}`
 
 const scoreRules = [
@@ -270,10 +273,10 @@ const urlRules = [
 
 const imageFilesRules = [
   (value: File[]) => {
-    if (useExternalImage.value || !value || !value.length || value[0].size <= 5000000) {
+    if (useExternalImage.value || !value || !value.length || value[0].size <= 5 * 1024 * 1024) {
       return true
     }
-    return '画像ファイルのサイズは5MB以下にしてください。'
+    return `画像ファイルのサイズは${imageSizeLimitInMB}MB以下にしてください。`
   }
 ]
 
@@ -404,28 +407,28 @@ async function deleteOldImageIfExists() {
 }
 
 /** リザルト画像アップロードAPIを叩く */
-async function callImageUploader() {
+async function callImageUploader(): Promise<string> {
   if (!compInfo.value || !userInfo.value || !imageFiles.value.length) {
     return ""
   }
 
   const { data, error } = await supabase.auth.getSession()
-  const params = { token: '' }
-  const jwt = data.session?.access_token
-  if (jwt) params.token = jwt
-  const query = new URLSearchParams(params)
+  const jwt = data.session?.access_token ?? ''
 
   const tempFormData = new FormData()
   tempFormData.append('file', imageFiles.value[0])
   tempFormData.append('uuid', userInfo.value.id)
   tempFormData.append('compId', compInfo.value.id.toString())
 
-  const response = await $fetch(`/api/upload/image?${query}`, {
+  const response = await $fetch(imageUploaderEndpoint, {
     method: 'POST',
     body: tempFormData,
+    headers: {
+      'Authorization': `Bearer ${jwt}`,
+    }
   })
 
-  return response
+  return response as string
 }
 
 async function checkHasScore() {

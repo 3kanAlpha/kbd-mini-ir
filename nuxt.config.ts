@@ -27,6 +27,7 @@ export default defineNuxtConfig({
       s3AccessKey: process.env.S3_ACCESS_KEY_ID,
       s3Secret: process.env.S3_SECRET,
       siteURL: process.env.SITE_URL,
+      imageUploaderDomain: process.env.IMAGE_UPLOADER_DOMAIN,
     }
   },
   app: {

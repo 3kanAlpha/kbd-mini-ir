@@ -183,7 +183,7 @@
 
 <script setup lang="ts">
 import { createClient } from '@supabase/supabase-js'
-import { S3Client, PutObjectCommand, DeleteObjectCommand } from '@aws-sdk/client-s3';
+import { S3Client, DeleteObjectCommand } from '@aws-sdk/client-s3';
 
 import type { User } from '@supabase/auth-js/src/lib/types'
 import type { VForm } from 'vuetify/components'

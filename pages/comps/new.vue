@@ -132,6 +132,7 @@
             size="large"
             prepend-icon="mdi-earth"
             :disabled="processing"
+            :loading="processing"
             block
           ></v-btn>
         </v-form>

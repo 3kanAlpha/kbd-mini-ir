@@ -7,7 +7,7 @@
         スコア登録期間: {{ formatTimestamp(compInfo.open_since) }} - {{ formatTimestamp(compInfo.open_until) }}
       </div>
 
-      <div>
+      <div class="text-left">
         <v-alert
           type="error"
           title="Error"
@@ -133,6 +133,7 @@
                 size="large"
                 prepend-icon="mdi-upload"
                 :disabled="uploading"
+                :loading="uploading"
                 block
               ></v-btn>
             </v-form>

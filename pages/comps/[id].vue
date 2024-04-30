@@ -252,6 +252,14 @@ function openPreviewDialog(image_url) {
   previewImageDialog.value = true
 }
 
+function shareToTwitter() {
+  const pageURL = window.location.href
+  const text = `${compInfo.value.name} #IRmania`
+  const url = `https://twitter.com/intent/tweet?url=${pageURL}&text=${text}`
+
+  window.open(url, '_blank')
+}
+
 onMounted(() => {
   getCompInfo()
   getScoreInfo()

@@ -12,6 +12,12 @@ export default defineNuxtConfig({
         config.plugins.push(vuetify({ autoImport: true }))
       })
     },
+    ['@nuxtjs/robots', {
+      rules: {
+        UserAgent: '*',
+        Disallow: '/',
+      }
+    }],
   ],
   vite: {
     vue: {
@@ -32,9 +38,6 @@ export default defineNuxtConfig({
   },
   app: {
     head: {
-      meta: [
-        { name: 'robots', content: 'noindex' },
-      ],
       link: [
         { rel: 'icon', type: 'image/x-icon', href: '/favicon.ico' },
       ],

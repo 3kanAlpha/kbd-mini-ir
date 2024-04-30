@@ -269,6 +269,10 @@ onMounted(() => {
     isLoading.value = false
   })
 })
+
+definePageMeta({
+  middleware: ['is-exist'],
+})
 </script>
 
 <style>

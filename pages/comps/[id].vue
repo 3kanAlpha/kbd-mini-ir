@@ -63,7 +63,7 @@
                 <span :class="{ 'text-pink-accent-2': userInfo && userInfo.id === item.user_uid }">{{ item.users.nickname }}</span>
               </td>
               <td data-label="Score">
-                <span v-if="'bm' in extraParams">{{ item.score }} / {{ extraParams.bm.notes * 2 }} ({{ getScoreRate(item.score, extraParams.bm.notes) }}%)</span>
+                <span v-if="'bm' in extraParams">{{ item.score }} <span style="font-size: 0.9em" class="text-blue-grey">/ {{ extraParams.bm.notes * 2 }} ({{ getScoreRate(item.score, extraParams.bm.notes) }}%)</span></span>
                 <span v-else>{{ item.score }}</span>
               </td>
               <td data-label="Updated at">

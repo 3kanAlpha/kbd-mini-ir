@@ -122,6 +122,20 @@
                 ></v-text-field>
               </v-expansion-panel-text>
             </v-expansion-panel>
+            <v-expansion-panel>
+              <v-expansion-panel-title>
+                <v-icon icon="mdi-flask" class="mr-2"></v-icon>試験的な機能
+              </v-expansion-panel-title>
+              <v-expansion-panel-text>
+                <h3 class="ma-1 mb-4">beatmania IIDX</h3>
+                <v-text-field
+                  v-model="bmNotesCount"
+                  label="Notes Count"
+                  hint="大会で使用する譜面のノーツ数を入力してください。"
+                  type="number"
+                ></v-text-field>
+              </v-expansion-panel-text>
+            </v-expansion-panel>
           </v-expansion-panels>
 
           <v-btn
@@ -179,6 +193,12 @@ const hiddenLeaderboard = ref(false)
 const isPrivate = ref(false)
 const passwd = ref("")
 const showPasswd = ref(false)
+
+// --- extra params ----
+
+const bmNotesCount = ref(null)
+
+// ----
 
 const compCreated = ref(false)
 const badRequest = ref(false)
@@ -296,6 +316,13 @@ async function createNewComp() {
   let digest = ''
   if (isPrivate.value) digest = await calcHash(passwd.value)
 
+  const extraParams = {}
+
+  if (gameTitle.value.startsWith('beatmania IIDX') && bmNotesCount.value) {
+    extraParams.bm = {}
+    extraParams.bm.notes = bmNotesCount.value
+  }
+
   const body = {
     name: compName.value,
     desc: desc.value,
@@ -307,6 +334,7 @@ async function createNewComp() {
     created_by: user.id,
     asc_order: useAscOrder.value,
     score_visible: !hiddenLeaderboard.value,
+    extra_params: extraParams,
   }
   if (manualOpenSince.value) {
     const startTimestamp = openSinceDate.value + "T" + openSinceTime.value + "+09:00"
@@ -338,6 +366,7 @@ definePageMeta({
 @media screen and (min-width: 600px) {
   .comp-form {
     min-width: 500px;
+    width: 500px;
   }
 }
 </style>

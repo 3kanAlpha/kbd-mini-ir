@@ -62,7 +62,10 @@
               <td class="table-td-player-name" data-label="Player Name">
                 <span :class="{ 'text-pink-accent-2': userInfo && userInfo.id === item.user_uid }">{{ item.users.nickname }}</span>
               </td>
-              <td data-label="Score">{{ item.score }}</td>
+              <td data-label="Score">
+                <span v-if="'bm' in extraParams">{{ item.score }} / {{ extraParams.bm.notes * 2 }} ({{ getScoreRate(item.score, extraParams.bm.notes) }}%)</span>
+                <span v-else>{{ item.score }}</span>
+              </td>
               <td data-label="Updated at">
                 {{ formatTimestamp(item.updated_at) }}
               </td>
@@ -135,6 +138,7 @@ const route = useRoute()
 
 const supabase = createClient('https://zczqyrsjbntkitypaaww.supabase.co', runtimeConfig.public.anonKey)
 const compInfo = ref(null)
+const extraParams = ref({})
 const scoreInfo = ref([])
 const scoreLoading = ref(true)
 const isLoading = ref(true)
@@ -168,6 +172,10 @@ const submissionPageUrl = `/submit/${route.params.id}`
 async function getCompInfo() {
   const { data } = await supabase.from('tournaments').select('*').eq('id', route.params.id).limit(1).single()
   compInfo.value = data
+
+  if (data.extra_params) {
+    extraParams.value = data.extra_params
+  }
 
   if (data.passwd.length > 0) {
     isPrivate.value = true

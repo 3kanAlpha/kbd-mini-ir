@@ -22,7 +22,7 @@
               label="Player Name"
               hint="ランキング上で表示される名前です。"
               :rules="nameRules"
-              :counter="20"
+              :counter="12"
             ></v-text-field>
 
             <v-btn
@@ -59,7 +59,7 @@ const nameRules = [
     }
     return true
   },
-  (value: string) => validateLength(value, 20)
+  (value: string) => validateLength(value, 12)
 ]
 
 async function updateProfile() {

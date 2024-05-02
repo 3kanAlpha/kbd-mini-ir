@@ -27,7 +27,8 @@
               <NuxtLink :to="'/comps/' + item.id">{{ item.name }}</NuxtLink>
             </td>
             <td class="table-td-game-title" data-label="Game Title">{{ item.game_title }}</td>
-            <td class="table-td-song-title" data-label="Song Title">{{ item.song_title }}</td>
+            <td v-if="isPortraitMobile" class="table-td-song-title" data-label="Song Title">{{ truncateString(item.song_title, 32) }}</td>
+            <td v-else class="table-td-song-title" data-label="Song Title">{{ item.song_title }}</td>
             <td data-label="Difficulty">{{ item.difficulty }}</td>
             <td data-label="Duration">
               {{ formatTimestamp(item.open_since) }} - {{ formatTimestamp(item.open_until) }}
@@ -45,7 +46,8 @@
               <NuxtLink :to="'/comps/' + item.id">{{ item.name }}</NuxtLink>
             </td>
             <td class="table-td-game-title" data-label="Game Title">{{ item.game_title }}</td>
-            <td class="table-td-song-title" data-label="Song Title">{{ item.song_title }}</td>
+            <td v-if="isPortraitMobile" class="table-td-song-title" data-label="Song Title">{{ truncateString(item.song_title, 32) }}</td>
+            <td v-else class="table-td-song-title" data-label="Song Title">{{ item.song_title }}</td>
             <td data-label="Difficulty">{{ item.difficulty }}</td>
             <td data-label="Open Until">
               <div :class="{'text-grey-lighten-1': !isCompOpen(item.open_since, item.open_until)}">
@@ -93,6 +95,8 @@ const searchText = ref('')
 
 const tableLoading = ref(true)
 
+const { isPortraitMobile } = useMobileDetector()
+
 const compTableName = 'tournaments'
 
 async function getComps() {
@@ -121,10 +125,6 @@ onMounted(() => {
 @media screen and (max-width: 600px) {
   .comp-table {
     max-width: 92vw;
-  }
-
-  .comp-table td {
-    width: 100%;
   }
 }
 

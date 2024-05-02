@@ -118,6 +118,16 @@ onMounted(() => {
 </script>
 
 <style>
+@media screen and (max-width: 600px) {
+  .comp-table {
+    max-width: 92vw;
+  }
+
+  .comp-table td {
+    width: 100%;
+  }
+}
+
 @media screen and (min-width: 960px) {
   .comp-table {
     min-width: 780px;

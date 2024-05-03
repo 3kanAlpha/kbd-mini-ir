@@ -1,36 +1,69 @@
 <template>
   <v-container fluid>
     <div v-if="!isLoading" class="text-center">
-      <div class="text-h3 my-4">{{ compInfo.name }}</div>
-      <div class="text-h6 ma-1">{{ compInfo.song_title }} [{{ compInfo.difficulty }}]</div>
-      <div class="text-subtitle-2 ma-1">
-        スコア登録期間: {{ formatTimestamp(compInfo.open_since) }} - {{ formatTimestamp(compInfo.open_until) }} 
-        <span v-if="isCompClosed(compInfo.open_until)">(開催終了)</span>
-        <span v-else-if="isCompUpcoming(compInfo.open_since)">(開催予定)</span>
+      <div v-if="isPortraitMobile">
+        <h2 class="my-2">{{ compInfo.name }}</h2>
+        <h4 class="mb-2">{{ compInfo.song_title }}<br />[{{ compInfo.difficulty }}]</h4>
+        <div class="text-subtitle-2 ma-1">
+          スコア登録期間<br />{{ formatTimestamp(compInfo.open_since) }} - {{ formatTimestamp(compInfo.open_until) }} 
+          <span v-if="isCompClosed(compInfo.open_until)">(開催終了)</span>
+          <span v-else-if="isCompUpcoming(compInfo.open_since)">(開催予定)</span>
+        </div>
+
+        <v-row v-if="isPrivate || hiddenLeaderboard" style="max-width: 300px;" class="mx-auto mb-4">
+          <v-col v-if="isPrivate">
+            <v-chip color="orange" size="small">
+              <v-icon icon="mdi-key-variant" start></v-icon>
+              プライベート
+            </v-chip>
+          </v-col>
+          <v-col v-if="hiddenLeaderboard">
+            <v-tooltip location="bottom">
+              <template v-slot:activator="{ props }">
+                <v-chip v-bind="props" color="deep-purple-accent-2" size="small">
+                  <v-icon icon="mdi-eye-off" start></v-icon>
+                  他人のスコア非表示
+                </v-chip>
+              </template>
+              <span>大会が終了するまで他プレイヤーのスコアが非表示になります</span>
+            </v-tooltip>
+          </v-col>
+        </v-row>
+
+        <div class="text-body-2 my-4 mb-6" style="white-space: pre-wrap;">{{ compInfo.desc }}</div>
       </div>
+      <div v-else>
+        <div class="text-h3 my-4">{{ compInfo.name }}</div>
+        <div class="text-h6 ma-1">{{ compInfo.song_title }} [{{ compInfo.difficulty }}]</div>
+        <div class="text-subtitle-2 ma-1">
+          スコア登録期間: {{ formatTimestamp(compInfo.open_since) }} - {{ formatTimestamp(compInfo.open_until) }} 
+          <span v-if="isCompClosed(compInfo.open_until)">(開催終了)</span>
+          <span v-else-if="isCompUpcoming(compInfo.open_since)">(開催予定)</span>
+        </div>
 
-      <v-row v-if="isPrivate || hiddenLeaderboard" style="max-width: 300px;" class="mx-auto mb-4">
-        <v-col v-if="isPrivate">
-          <v-chip color="orange" size="small">
-            <v-icon icon="mdi-key-variant" start></v-icon>
-            プライベート
-          </v-chip>
-        </v-col>
-        <v-col v-if="hiddenLeaderboard">
-          <v-tooltip location="bottom">
-            <template v-slot:activator="{ props }">
-              <v-chip v-bind="props" color="deep-purple-accent-2" size="small">
-                <v-icon icon="mdi-eye-off" start></v-icon>
-                他人のスコア非表示
-              </v-chip>
-            </template>
-            <span>大会が終了するまで他プレイヤーのスコアが非表示になります</span>
-          </v-tooltip>
-        </v-col>
-      </v-row>
+        <v-row v-if="isPrivate || hiddenLeaderboard" style="max-width: 300px;" class="mx-auto mb-4">
+          <v-col v-if="isPrivate">
+            <v-chip color="orange" size="small">
+              <v-icon icon="mdi-key-variant" start></v-icon>
+              プライベート
+            </v-chip>
+          </v-col>
+          <v-col v-if="hiddenLeaderboard">
+            <v-tooltip location="bottom">
+              <template v-slot:activator="{ props }">
+                <v-chip v-bind="props" color="deep-purple-accent-2" size="small">
+                  <v-icon icon="mdi-eye-off" start></v-icon>
+                  他人のスコア非表示
+                </v-chip>
+              </template>
+              <span>大会が終了するまで他プレイヤーのスコアが非表示になります</span>
+            </v-tooltip>
+          </v-col>
+        </v-row>
 
-      <div class="text-body-1 my-4 mb-6" style="white-space: pre-wrap;">{{ compInfo.desc }}</div>
-
+        <div class="text-body-1 my-4 mb-6" style="white-space: pre-wrap;">{{ compInfo.desc }}</div>
+      </div>
+      
       <div v-if="(isLoggedIn && isCompOpen(compInfo.open_since, compInfo.open_until)) || canDelete" class="my-4">
         <div style="max-width: 500px;" class="mx-auto">
           <v-row>

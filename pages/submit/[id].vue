@@ -1,10 +1,21 @@
 <template>
   <v-container fluid>
     <div v-if="!isLoading && compInfo != null" class="text-center">
-      <div class="text-h3 my-4">{{ compInfo.name }}</div>
-      <div class="text-h6 ma-1">{{ compInfo.song_title }} [{{ compInfo.difficulty }}]</div>
-      <div class="text-subtitle-2 ma-1">
-        スコア登録期間: {{ formatTimestamp(compInfo.open_since) }} - {{ formatTimestamp(compInfo.open_until) }}
+      <div v-if="isPortraitMobile">
+        <h2 class="my-2">{{ compInfo.name }}</h2>
+        <h4 class="mb-2">{{ compInfo.song_title }}<br />[{{ compInfo.difficulty }}]</h4>
+        <div class="text-subtitle-2 ma-1">
+          スコア登録期間<br />{{ formatTimestamp(compInfo.open_since) }} - {{ formatTimestamp(compInfo.open_until) }} 
+          <span v-if="isCompClosed(compInfo.open_until)">(開催終了)</span>
+          <span v-else-if="isCompUpcoming(compInfo.open_since)">(開催予定)</span>
+        </div>
+      </div>
+      <div v-else>
+        <div class="text-h3 my-4">{{ compInfo.name }}</div>
+        <div class="text-h6 ma-1">{{ compInfo.song_title }} [{{ compInfo.difficulty }}]</div>
+        <div class="text-subtitle-2 ma-1">
+          スコア登録期間: {{ formatTimestamp(compInfo.open_since) }} - {{ formatTimestamp(compInfo.open_until) }}
+        </div>
       </div>
 
       <div class="text-left">
@@ -14,6 +25,12 @@
           v-model="submitNotReady"
           class="my-6"
         >スコアを提出するにはログインしてから名前を設定してください。</v-alert>
+        <v-alert
+          type="warning"
+          title="プレイヤー名未設定"
+          v-model="nameNotSet"
+          class="my-6"
+        >プレイヤー名が未設定です。アカウント設定ページからプレイヤー名を変更してください。</v-alert>
         <v-alert
           type="error"
           title="終了済みの大会"
@@ -236,6 +253,11 @@ const hasScore = ref(false)
 /** スコア提出処理中にボタンを無効にするフラグ */
 const uploading = ref(false)
 
+const { isPortraitMobile } = useMobileDetector()
+
+const defaultPlayerName = 'No Name'
+const nameNotSet = ref(false)
+
 const imageSizeLimitInMB = 5
 const imageUploaderEndpoint = runtimeConfig.public.imageUploaderDomain + '/api/image'
 
@@ -319,7 +341,10 @@ async function verifyCanSubmit() {
     return
   }
 
-  // const { data, error } = await supabase.from('users').select('nickname').eq('id', user.id).limit(1).single()
+  const { data, error } = await supabase.from('users').select('nickname').eq('user_uid', user.id).limit(1).single()
+  if (!data || data.nickname === defaultPlayerName) {
+    nameNotSet.value = true
+  }
 }
 
 async function updateScore() {

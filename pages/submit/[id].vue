@@ -201,7 +201,6 @@
 
 <script setup lang="ts">
 import { createClient } from '@supabase/supabase-js'
-import { S3Client, DeleteObjectCommand } from '@aws-sdk/client-s3';
 
 import type { User } from '@supabase/auth-js/src/lib/types'
 import type { VForm } from 'vuetify/components'
@@ -211,15 +210,6 @@ const route = useRoute()
 
 const supabase = createClient('https://zczqyrsjbntkitypaaww.supabase.co', runtimeConfig.public.anonKey)
 
-const bucketName = 'irmania'
-const s3 = new S3Client({
-  region: 'auto',
-  endpoint: runtimeConfig.public.s3Endpoint,
-  credentials: {
-    accessKeyId: runtimeConfig.public.s3AccessKey,
-    secretAccessKey: runtimeConfig.public.s3Secret,
-  }
-})
 const publicDomain = 'https://irpics.mgcup.net/'
 
 /** 大会情報 */
@@ -418,16 +408,21 @@ async function deleteOldImageIfExists() {
     // 外部サイトのURLの場合は削除しない
     if (score.image_url.startsWith(publicDomain)) {
       const oldKey = score.image_url.replace(publicDomain, '')
-      const command = new DeleteObjectCommand({
-        Bucket: bucketName,
-        Key: oldKey,
-      })
+      
+      const { data, error } = await supabase.auth.getSession()
+      const jwt = data.session?.access_token ?? ''
 
-      try {
-        await s3.send(command)
-      } catch (err) {
-        console.error(err)
+      const body = {
+        fileKey: oldKey,
       }
+
+      await $fetch(imageUploaderEndpoint, {
+        method: 'DELETE',
+        body: body,
+        headers: {
+          'Authorization': `Bearer ${jwt}`,
+        }
+      })
     }
   }
 }

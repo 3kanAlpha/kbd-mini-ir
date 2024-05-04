@@ -185,6 +185,7 @@ const headers = [
 ]
 const useAscOrder = ref(false)
 const hiddenLeaderboard = ref(false)
+const useAltRanking = ref(false)
 const isPrivate = ref(false)
 /** スコア降順、スコアが同じ場合提出が速い方が順位を上にする */
 const sortBy = [{ key: 'score', order: 'desc' }, { key: 'updated_at', order: 'asc' }]
@@ -248,16 +249,18 @@ async function getScoreInfo() {
 
   const { data: scoreData } = await query
   if (scoreData) {
-    appendRank(scoreData)
+    if (useAltRanking.value) appendRankAlt(scoreData)
+    else appendRank(scoreData)
     scoreInfo.value = scoreData
   }
   scoreLoading.value = false
 }
 
 async function getCompSettings() {
-  const { data } = await supabase.from('tournaments').select('asc_order,score_visible,open_until').eq('id', route.params.id).limit(1).single()
+  const { data } = await supabase.from('tournaments').select('asc_order,score_visible,open_until,alt_rank').eq('id', route.params.id).limit(1).single()
   useAscOrder.value = data.asc_order
   hiddenLeaderboard.value = !data.score_visible && !isCompClosed(data.open_until)
+  useAltRanking.value = data.alt_rank
 }
 
 /** ユーザーが既にログイン済みかどうかを検証する */

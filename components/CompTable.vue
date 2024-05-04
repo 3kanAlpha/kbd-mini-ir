@@ -101,7 +101,15 @@ const compTableName = 'tournaments'
 
 async function getComps() {
   const currentDate = new Date().toISOString()
-  let query = supabase.from(compTableName).select()
+  let query = supabase.from(compTableName).select(`
+    id,
+    name,
+    game_title,
+    song_title,
+    difficulty,
+    open_until,
+    open_since
+  `)
 
   if (props.type === 'upcoming') {
     query = query.gt('open_since', currentDate)

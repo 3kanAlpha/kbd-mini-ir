@@ -10,7 +10,7 @@
           <span v-else-if="isCompUpcoming(compInfo.open_since)">(開催予定)</span>
         </div>
 
-        <v-row v-if="isPrivate || hiddenLeaderboard" style="max-width: 300px;" class="mx-auto mb-4">
+        <v-row v-if="isPrivate || hiddenLeaderboard || frozenLeaderboard" style="max-width: 300px;" class="mx-auto mb-4">
           <v-col v-if="isPrivate">
             <v-chip color="orange" size="small">
               <v-icon icon="mdi-key-variant" start></v-icon>
@@ -28,6 +28,17 @@
               <span>大会が終了するまで他プレイヤーのスコアが非表示になります</span>
             </v-tooltip>
           </v-col>
+          <v-col v-if="frozenLeaderboard">
+            <v-tooltip location="bottom">
+              <template v-slot:activator="{ props }">
+                <v-chip v-bind="props" color="pink-accent-2" size="small">
+                  <v-icon icon="mdi-lock" start></v-icon>
+                  順位表ロック
+                </v-chip>
+              </template>
+              <span>大会終了直前のため、一時的にスコアが非表示となっています</span>
+            </v-tooltip>
+          </v-col>
         </v-row>
 
         <div class="text-body-2 my-4 mb-6" style="white-space: pre-wrap;">{{ compInfo.desc }}</div>
@@ -41,7 +52,7 @@
           <span v-else-if="isCompUpcoming(compInfo.open_since)">(開催予定)</span>
         </div>
 
-        <v-row v-if="isPrivate || hiddenLeaderboard" style="max-width: 300px;" class="mx-auto mb-4">
+        <v-row v-if="isPrivate || hiddenLeaderboard || frozenLeaderboard" style="max-width: 300px;" class="mx-auto mb-4">
           <v-col v-if="isPrivate">
             <v-chip color="orange" size="small">
               <v-icon icon="mdi-key-variant" start></v-icon>
@@ -57,6 +68,17 @@
                 </v-chip>
               </template>
               <span>大会が終了するまで他プレイヤーのスコアが非表示になります</span>
+            </v-tooltip>
+          </v-col>
+          <v-col v-if="frozenLeaderboard">
+            <v-tooltip location="bottom">
+              <template v-slot:activator="{ props }">
+                <v-chip v-bind="props" color="pink-accent-2" size="small">
+                  <v-icon icon="mdi-lock" start></v-icon>
+                  順位表ロック
+                </v-chip>
+              </template>
+              <span>大会終了直前のため、一時的にスコアが非表示となっています</span>
             </v-tooltip>
           </v-col>
         </v-row>
@@ -83,7 +105,7 @@
             <tr>
               <td data-label="Rank">
                 <div :class="{ 'text-center': !isPortraitMobile }">
-                  <div v-if="hiddenLeaderboard">?</div>
+                  <div v-if="cantSeeScore">?</div>
                   <div v-else>
                     <div v-if="item.rank == 1"><v-icon icon="mdi-crown" color="amber"></v-icon></div>
                     <div v-else-if="item.rank == 2"><v-icon icon="mdi-crown" color="blue-grey-lighten-2"></v-icon></div>
@@ -187,8 +209,13 @@ const useAscOrder = ref(false)
 const hiddenLeaderboard = ref(false)
 const useAltRanking = ref(false)
 const isPrivate = ref(false)
-/** スコア降順、スコアが同じ場合提出が速い方が順位を上にする */
-const sortBy = [{ key: 'score', order: 'desc' }, { key: 'updated_at', order: 'asc' }]
+
+// ---- 順位表凍結機能 ----
+const isObserver = ref(false)
+const frozenLeaderboard = ref(false)
+const cantSeeScore = computed(() => {
+  return !isObserver.value && (hiddenLeaderboard.value || frozenLeaderboard.value)
+})
 
 const isLoggedIn = ref(false)
 const canDelete = ref(false)
@@ -207,6 +234,10 @@ async function getCompInfo() {
   const { data } = await supabase.from('tournaments').select('*').eq('id', route.params.id).limit(1).single()
   compInfo.value = data
 
+  if (data.hide_score_hr > 0) {
+    frozenLeaderboard.value = isScoreFrozen(data.open_until, data.hide_score_hr)
+  }
+
   if (data.extra_params) {
     extraParams.value = data.extra_params
   }
@@ -215,10 +246,17 @@ async function getCompInfo() {
     isPrivate.value = true
   }
 
-  // ユーザーが作成した大会かどうかを確認
-  const { data: { user } } = await supabase.auth.getUser()
-  if (user != null && user.id === data.created_by) {
-    canDelete.value = true
+  if (userInfo.value != null) {
+    // ユーザーが作成した大会かどうかを確認
+    if (userInfo.value.id === data.created_by) {
+      canDelete.value = true
+    }
+
+    // 順位表凍結期間も、大会観戦者は順位表を見ることができる
+    if (data.extra_params && 'observer' in data.extra_params) {
+      const observers = data.extra_params.observer
+      isObserver.value = observers.some((observer) => (observer === userInfo.value.id))
+    }
   }
 }
 
@@ -236,7 +274,7 @@ async function getScoreInfo() {
       users (nickname)`)
     .eq('tournament_id', route.params.id)
 
-  if (hiddenLeaderboard.value) {
+  if (cantSeeScore.value) {
     const { data: { user } } = await supabase.auth.getUser()
     if (user != null) {
       query = query.eq('user_uid', user.id)
@@ -304,10 +342,14 @@ function shareToTwitter() {
   window.open(url, '_blank')
 }
 
-onMounted(() => {
-  getCompInfo()
+async function initPage() {
+  await setLoggedIn()
+  await getCompInfo()
   getScoreInfo()
-  setLoggedIn()
+}
+
+onMounted(() => {
+  initPage()
 
   nextTick(() => {
     isLoading.value = false
@@ -328,7 +370,7 @@ definePageMeta({
 
   .table-td-comment {
     width: 250px;
-    max-width: 300px;
+    max-width: 340px;
   }
 }
 </style>

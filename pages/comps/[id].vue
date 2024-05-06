@@ -100,7 +100,7 @@
       </div>
 
       <div class="text-left">
-        <v-data-table :items="scoreInfo" :headers="headers" item-key="user_uid" :loading="scoreLoading">
+        <v-data-table :items="scoreInfo" :headers="headers" item-key="user_uid" :loading="scoreLoading" :items-per-page="50">
           <template v-slot:item="{ item }">
             <tr>
               <td data-label="Rank">

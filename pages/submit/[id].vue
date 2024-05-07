@@ -18,7 +18,7 @@
         </div>
       </div>
 
-      <div class="text-left">
+      <div class="text-left mx-auto" style="max-width: 550px">
         <v-alert
           type="error"
           title="Error"
@@ -37,13 +37,6 @@
           v-model="compNotOpen"
           class="my-6"
         >スコア登録可能な期間を過ぎています。</v-alert>
-        <v-alert
-          type="success"
-          title="スコアを提出しました"
-          v-model="scoreUpdated"
-          class="my-6"
-          closable
-        >スコアが正常に登録されました。</v-alert>
       </div>
 
       <div v-if="!submitNotReady && !compNotOpen">
@@ -196,6 +189,17 @@
         </template>
       </v-card>
     </v-dialog>
+    <v-bottom-sheet v-model="scoreUpdated">
+      <v-card prepend-icon="mdi-check-circle" color="green">
+        <template v-slot:title>
+          <span class="font-weight-black text-uppercase">Score Updated!</span>
+        </template>
+
+        <v-card-text>
+          スコアが正常に登録されました。
+        </v-card-text>
+      </v-card>
+    </v-bottom-sheet>
   </v-container>
 </template>
 

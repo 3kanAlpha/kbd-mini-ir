@@ -8,6 +8,7 @@
 
       <template v-slot:append>
         <v-btn icon="mdi-home" to="/"></v-btn>
+        <v-btn icon="mdi-information-slab-circle" to="/about"></v-btn>
         <v-btn icon="mdi-theme-light-dark" @click="toggleTheme"></v-btn>
         <v-menu id="user-menu" transition="slide-x-transition" rounded>
           <template v-slot:activator="{ props }">

@@ -1,7 +1,7 @@
 <template>
   <v-container fluid>
     <div class="text-center">
-      <div class="text-h3 ma-6">アカウント設定</div>
+      <div class="text-h4 text-sm-h3 ma-6">アカウント設定</div>
       <div>
         <v-alert
           v-model="updateAlert"

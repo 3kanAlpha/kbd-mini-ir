@@ -175,7 +175,7 @@
 import { createClient } from '@supabase/supabase-js'
 const runtimeConfig = useRuntimeConfig()
 
-const supabase = createClient('https://zczqyrsjbntkitypaaww.supabase.co', runtimeConfig.public.anonKey)
+const supabase = createClient(runtimeConfig.public.supabaseURL, runtimeConfig.public.anonKey)
 
 const form = ref(null)
 const compName = ref("")

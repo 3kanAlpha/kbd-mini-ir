@@ -53,7 +53,7 @@
 import { createClient } from '@supabase/supabase-js'
 import SvgGitHub from '~/components/svg/SvgGitHub.vue';
 const runtimeConfig = useRuntimeConfig()
-const supabase = createClient('https://zczqyrsjbntkitypaaww.supabase.co', runtimeConfig.public.anonKey)
+const supabase = createClient(runtimeConfig.public.supabaseURL, runtimeConfig.public.anonKey)
 
 const isLoggedIn = ref(false)
 

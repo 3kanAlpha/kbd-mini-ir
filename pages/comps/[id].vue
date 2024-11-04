@@ -125,17 +125,8 @@
                 {{ formatTimestamp(item.updated_at) }}
               </td>
               <td data-label="Result Image">
-                <div v-if="isPortraitMobile"><span class="font-weight-light text-grey-lighten-1" style="font-size: 0.7em;">モバイル環境では閲覧できません</span></div>
-                <div v-else>
-                  <div v-if="getHostnameFromURL(item.image_url) === 'irpics.mgcup.net'">
-                    <v-btn class="text-none" density="comfortable" variant="text" color="blue" :ripple="false" @click="openPreviewDialog(item.image_url)">Click to preview</v-btn>
-                  </div>
-                  <div v-else-if="isTrustedSite(item.image_url)">
-                    <NuxtLink :to="item.image_url" target="_blank">{{ getHostnameFromURL(item.image_url) }}</NuxtLink><span class="text-caption text-blue-grey-lighten-1">（外部リンク）</span>
-                  </div>
-                  <div v-else>
-                    {{ item.image_url }}
-                  </div>
+                <div v-if="item.image_url">
+                  <NuxtLink :to="item.image_url" target="_blank">クリックして表示</NuxtLink>
                 </div>
               </td>
               <td class="table-td-comment" data-label="Comment">{{ item.comment }}</td>
@@ -191,7 +182,7 @@ import { createClient } from '@supabase/supabase-js'
 const runtimeConfig = useRuntimeConfig()
 const route = useRoute()
 
-const supabase = createClient('https://zczqyrsjbntkitypaaww.supabase.co', runtimeConfig.public.anonKey)
+const supabase = createClient(runtimeConfig.public.supabaseURL, runtimeConfig.public.anonKey)
 const compInfo = ref(null)
 const extraParams = ref({})
 const scoreInfo = ref([])

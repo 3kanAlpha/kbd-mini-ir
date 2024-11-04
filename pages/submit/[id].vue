@@ -212,7 +212,7 @@ import type { VForm } from 'vuetify/components'
 const runtimeConfig = useRuntimeConfig()
 const route = useRoute()
 
-const supabase = createClient('https://zczqyrsjbntkitypaaww.supabase.co', runtimeConfig.public.anonKey)
+const supabase = createClient(runtimeConfig.public.supabaseURL, runtimeConfig.public.anonKey)
 
 const publicDomain = 'https://irpics.mgcup.net/'
 

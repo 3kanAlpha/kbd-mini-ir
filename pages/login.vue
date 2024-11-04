@@ -24,7 +24,7 @@ import { createClient } from '@supabase/supabase-js'
 import SvgDiscord from '~/components/svg/SvgDiscord.vue';
 const runtimeConfig = useRuntimeConfig()
 
-const supabase = createClient('https://zczqyrsjbntkitypaaww.supabase.co', runtimeConfig.public.anonKey)
+const supabase = createClient(runtimeConfig.public.supabaseURL, runtimeConfig.public.anonKey)
 
 const isLoggedIn = ref(false)
 

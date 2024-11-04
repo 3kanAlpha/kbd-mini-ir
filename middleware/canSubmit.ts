@@ -2,7 +2,7 @@ import { createClient } from '@supabase/supabase-js'
 
 export default defineNuxtRouteMiddleware(async (to, from) => {
   const runtimeConfig = useRuntimeConfig()
-  const supabase = createClient('https://zczqyrsjbntkitypaaww.supabase.co', runtimeConfig.public.anonKey)
+  const supabase = createClient(runtimeConfig.public.supabaseURL, runtimeConfig.public.anonKey)
 
   const isCompExists = async () => {
     const compId = to.params.id

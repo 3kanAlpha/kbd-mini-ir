@@ -49,7 +49,7 @@
 import { useTheme } from 'vuetify'
 import { createClient } from '@supabase/supabase-js'
 const runtimeConfig = useRuntimeConfig()
-const supabase = createClient('https://zczqyrsjbntkitypaaww.supabase.co', runtimeConfig.public.anonKey)
+const supabase = createClient(runtimeConfig.public.supabaseURL, runtimeConfig.public.anonKey)
 
 const theme = useTheme()
 
@@ -58,7 +58,7 @@ const { isPortraitMobile } = useMobileDetector()
 const isLoggedIn = ref(false)
 const userData = ref(null)
 
-const defaultProfilePicURL = 'https://zczqyrsjbntkitypaaww.supabase.co/storage/v1/object/public/profile-pics/twitter-default.webp'
+const defaultProfilePicURL = 'https://uiphrshppkgbweucmuii.supabase.co/storage/v1/object/public/profile-pics/twitter-default.webp'
 
 function toggleTheme () {
   theme.global.name.value = theme.global.current.value.dark ? 'light' : 'dark'

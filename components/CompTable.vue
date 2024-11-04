@@ -73,7 +73,7 @@ const props = defineProps({
 })
 
 const runtimeConfig = useRuntimeConfig()
-const supabase = createClient('https://zczqyrsjbntkitypaaww.supabase.co', runtimeConfig.public.anonKey)
+const supabase = createClient(runtimeConfig.public.supabaseURL, runtimeConfig.public.anonKey)
 const comps = ref([])
 const headers = [
   { title: 'Name', value: 'name' },

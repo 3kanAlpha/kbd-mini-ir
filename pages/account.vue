@@ -46,7 +46,7 @@ import { createClient } from '@supabase/supabase-js'
 import type { VForm } from 'vuetify/components'
 const runtimeConfig = useRuntimeConfig()
 
-const supabase = createClient('https://zczqyrsjbntkitypaaww.supabase.co', runtimeConfig.public.anonKey)
+const supabase = createClient(runtimeConfig.public.supabaseURL, runtimeConfig.public.anonKey)
 
 const form: Ref<VForm | null> = ref(null)
 const userName = ref("")

@@ -232,7 +232,7 @@ const userInfo: Ref<User | null> = ref(null)
 const form: Ref<VForm | null> = ref(null)
 const score = ref("")
 const imageUrl = ref("")
-const imageFiles: Ref<File[]> = ref([])
+const imageFiles: Ref<File | null> = ref(null)
 const comment = ref("")
 
 const useExternalImage = ref(false)
@@ -289,8 +289,9 @@ const urlRules = [
 ]
 
 const imageFilesRules = [
+  // なぜかここは配列で渡される
   (value: File[]) => {
-    if (useExternalImage.value || !value || !value.length || value[0].size <= 5 * 1024 * 1024) {
+    if (useExternalImage.value || !value.length || value[0].size <= 5 * 1024 * 1024) {
       return true
     }
     return `画像ファイルのサイズは${imageSizeLimitInMB}MB以下にしてください。`
@@ -433,7 +434,7 @@ async function deleteOldImageIfExists() {
 
 /** リザルト画像アップロードAPIを叩く */
 async function callImageUploader(): Promise<string> {
-  if (!compInfo.value || !userInfo.value || !imageFiles.value.length) {
+  if (!compInfo.value || !userInfo.value || !imageFiles.value) {
     return ""
   }
 
@@ -441,7 +442,7 @@ async function callImageUploader(): Promise<string> {
   const jwt = data.session?.access_token ?? ''
 
   const tempFormData = new FormData()
-  tempFormData.append('file', imageFiles.value[0])
+  tempFormData.append('file', imageFiles.value)
   tempFormData.append('uuid', userInfo.value.id)
   tempFormData.append('compId', compInfo.value.id.toString())
 
@@ -492,8 +493,8 @@ onUnmounted(() => {
 watch(imageFiles, (newFiles) => {
   const oldSrc = previewSrc.value
 
-  if (newFiles.length) {
-    previewSrc.value = URL.createObjectURL(newFiles[0])
+  if (newFiles) {
+    previewSrc.value = URL.createObjectURL(newFiles)
   } else {
     previewSrc.value = ""
   }

@@ -2,7 +2,15 @@
   <v-container fluid>
     <div class="text-center">
       <div class="text-h4 text-sm-h3 ma-6">アカウント設定</div>
-      <div>
+      <div class="text-left">
+        <v-alert
+          v-model="nameNotSet"
+          title="プレイヤー名未設定"
+          type="warning"
+          class="my-6"
+        >
+          プレイヤー名が設定されていません。
+        </v-alert>
         <v-alert
           v-model="updateAlert"
           title="Success!"
@@ -52,6 +60,9 @@ const form: Ref<VForm | null> = ref(null)
 const userName = ref("")
 const updateAlert = ref(false)
 
+const defaultName = 'No Name'
+const nameNotSet = ref(false)
+
 const nameRules = [
   (value: string) => {
     if (value.trim().length < 1) {
@@ -88,9 +99,32 @@ async function updateProfile() {
   })
 
   if (error == null) {
+    nameNotSet.value = false
     updateAlert.value = true
   }
 }
+
+/** プレイヤー名が設定されているかどうか確認する */
+async function checkIfPlayerHasName() {
+  const { data: { user } } = await supabase.auth.getUser()
+
+  if (user != null) {
+    const userUID = user.id
+    const { data, error } = await supabase
+      .from('users')
+      .select('nickname')
+      .eq('user_uid', userUID)
+      .maybeSingle()
+    
+    if (data != null && data.nickname === defaultName) {
+      nameNotSet.value = true
+    }
+  }
+}
+
+onMounted(() => {
+  checkIfPlayerHasName()
+})
 
 definePageMeta({
   middleware: ['auth'],

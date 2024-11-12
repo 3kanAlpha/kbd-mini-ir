@@ -200,6 +200,17 @@
         </v-card-text>
       </v-card>
     </v-bottom-sheet>
+    <v-bottom-sheet v-model="failedToUploadImage">
+      <v-card prepend-icon="mdi-alert-circle" color="red">
+        <template v-slot:title>
+          <span class="font-weight-black text-uppercase">Upload Failed</span>
+        </template>
+
+        <v-card-text>
+          リザルト画像のアップロードに失敗しました。再試行しても改善しない場合、管理者へ連絡してください。
+        </v-card-text>
+      </v-card>
+    </v-bottom-sheet>
   </v-container>
 </template>
 
@@ -246,6 +257,8 @@ const hasScore = ref(false)
 
 /** スコア提出処理中にボタンを無効にするフラグ */
 const uploading = ref(false)
+
+const failedToUploadImage = ref(false)
 
 const { isPortraitMobile } = useMobileDetector()
 
@@ -375,6 +388,13 @@ async function updateScore() {
   let iu = imageUrl.value
   if (!useExternalImage.value) {
     iu = await callImageUploader()
+
+    // 画像が添付されているにも関わらず、アップロードに失敗している場合
+    if (imageFiles.value != null && iu === '') {
+      failedToUploadImage.value = true
+      uploading.value = false
+      return
+    }
   }
 
   const parsedScore = parseFloat(score.value)

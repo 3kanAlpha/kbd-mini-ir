@@ -1,6 +1,6 @@
 <template>
   <v-container fluid>
-    <div v-if="!isLoading" class="text-center">
+    <div v-if="!isLoading && compInfo != null" class="text-center">
       <div v-if="isPortraitMobile">
         <h2 class="my-2">{{ compInfo.name }}</h2>
         <h4 class="mb-2">{{ compInfo.song_title }}<br />[{{ compInfo.difficulty }}]</h4>

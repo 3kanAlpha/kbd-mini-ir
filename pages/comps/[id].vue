@@ -3,7 +3,7 @@
     <div v-if="!isLoading && compInfo != null" class="text-center">
       <div v-if="isPortraitMobile">
         <h2 class="my-2">{{ compInfo.name }}</h2>
-        <h4 class="mb-2">{{ compInfo.song_title }}<br />[{{ compInfo.difficulty }}]</h4>
+        <h4 v-if="!isCompUpcoming(compInfo.open_since)" class="mb-2">{{ compInfo.song_title }}<br />[{{ compInfo.difficulty }}]</h4>
         <div class="text-subtitle-2 ma-1">
           スコア登録期間<br />{{ formatTimestamp(compInfo.open_since) }} - {{ formatTimestamp(compInfo.open_until) }} 
           <span v-if="isCompClosed(compInfo.open_until)">(開催終了)</span>
@@ -45,7 +45,7 @@
       </div>
       <div v-else>
         <div class="text-h3 my-4">{{ compInfo.name }}</div>
-        <div class="text-h6 ma-1">{{ compInfo.song_title }} [{{ compInfo.difficulty }}]</div>
+        <div v-if="!isCompUpcoming(compInfo.open_since)" class="text-h6 ma-1">{{ compInfo.song_title }} [{{ compInfo.difficulty }}]</div>
         <div class="text-subtitle-2 ma-1">
           スコア登録期間: {{ formatTimestamp(compInfo.open_since) }} - {{ formatTimestamp(compInfo.open_until) }} 
           <span v-if="isCompClosed(compInfo.open_until)">(開催終了)</span>

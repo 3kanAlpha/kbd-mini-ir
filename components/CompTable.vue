@@ -27,9 +27,6 @@
               <NuxtLink :to="'/comps/' + item.id">{{ item.name }}</NuxtLink>
             </td>
             <td class="table-td-game-title" data-label="Game Title">{{ item.game_title }}</td>
-            <td v-if="isPortraitMobile" class="table-td-song-title" data-label="Song Title">{{ truncateString(item.song_title, 32) }}</td>
-            <td v-else class="table-td-song-title" data-label="Song Title">{{ item.song_title }}</td>
-            <td data-label="Difficulty">{{ item.difficulty }}</td>
             <td data-label="Duration">
               {{ formatTimestamp(item.open_since) }} - {{ formatTimestamp(item.open_until) }}
             </td>
@@ -85,8 +82,6 @@ const headers = [
 const upcomingHeaders = [
   { title: 'Name', value: 'name' },
   { title: 'Game Title', value: 'game_title' },
-  { title: 'Song Title', value: 'song_title' },
-  { title: 'Difficulty', value: 'difficulty' },
   { title: 'Duration', filterable: false },
 ]
 const sortBy = [{ key: 'id', order: 'desc' }] // 新しい大会が上に来るように
